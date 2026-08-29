@@ -9,14 +9,14 @@
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="icon" type="image/png" href="fotos/favicon.png">
-<link rel="apple-touch-icon" href="fotos/favicon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&amp;family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&amp;display=swap" rel="stylesheet">
 <style>
-@font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Light.otf') format('opentype');font-weight:300;font-style:normal}
-@font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Medium.otf') format('opentype');font-weight:500;font-style:normal}
-@font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Extrabold.otf') format('opentype');font-weight:750;font-style:normal}
+@font-face{font-family:'Proxima Nova';src:url('ProximaNova-Light.otf') format('opentype');font-weight:300;font-style:normal}
+@font-face{font-family:'Proxima Nova';src:url('ProximaNova-Medium.otf') format('opentype');font-weight:500;font-style:normal}
+@font-face{font-family:'Proxima Nova';src:url('ProximaNova-Extrabold.otf') format('opentype');font-weight:750;font-style:normal}
 html{scroll-behavior:smooth}
 body{margin:0;background:#ffffff;color:#0a0a0a;font-family:'Proxima Nova',sans-serif;-webkit-font-smoothing:antialiased}
 @keyframes nm-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -84,7 +84,7 @@ image-slot{position:absolute;inset:0;width:100%;height:100%;display:block;transi
       <span style="display:block;width:18px;height:2px;background:#0a0a0a"></span>
     </button>
     <a onClick="{{ goHome }}" style="display:flex;justify-content:center;text-decoration:none;cursor:pointer">
-      <img src="fotos/logo-nona-miranda.png" alt="Nona Miranda" style="height:24px;width:auto;display:block">
+      <img src="logo-nona-miranda.png" alt="Nona Miranda" style="height:24px;width:auto;display:block">
     </a>
     <div style="width:100%;display:flex;align-items:center;justify-content:center;position:relative">
       <nav data-nm="nav" style="display:flex;gap:30px;font-size:12px;letter-spacing:0.16em;font-weight:300">
@@ -113,7 +113,7 @@ image-slot{position:absolute;inset:0;width:100%;height:100%;display:block;transi
 <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
 <div data-screen-label="Menú móvil" style="position:fixed;inset:0;z-index:110;background:#fff;display:flex;flex-direction:column">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #0a0a0a">
-    <img src="uploads/logo-1783103585770.png" alt="Nona Miranda" style="height:44px;width:auto">
+    <img src="logo-1783103585770.png" alt="Nona Miranda" style="height:44px;width:auto">
     <button onClick="{{ closeMenu }}" style="background:none;border:none;cursor:pointer;font-size:24px;line-height:1;color:#0a0a0a;padding:6px">✕</button>
   </div>
   <nav style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:24px">
@@ -365,7 +365,7 @@ image-slot{position:absolute;inset:0;width:100%;height:100%;display:block;transi
         </div>
         <sc-if value="{{ payIsYape }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;padding:18px;border:1px solid #e2e0db;background:#f6f5f2">
-            <img src="fotos/qr-yape.jpeg" alt="QR de Yape — Adriana Naomi Campos Huapaya" style="width:170px;height:auto;flex-shrink:0;border:1px solid #e2e0db;display:block">
+            <img src="qr-yape.jpeg" alt="QR de Yape — Adriana Naomi Campos Huapaya" style="width:170px;height:auto;flex-shrink:0;border:1px solid #e2e0db;display:block">
             <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:10px">
               <p style="margin:0;font-size:13px;line-height:1.6;color:#3a3a3a">Escanea el QR desde tu app de Yape y paga el total.</p>
               <p style="margin:0;font-size:12px;letter-spacing:0.16em;font-weight:600;color:#777">SUBE TU CONSTANCIA</p>
@@ -615,9 +615,9 @@ image-slot{position:absolute;inset:0;width:100%;height:100%;display:block;transi
       </sc-if>
     </sc-if>
     <sc-if value="{{ heroIsPhoto }}" hint-placeholder-val="{{ true }}">
-      <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="hero-img" src="fotos/hero-img.webp" shape="rect" fit="{{ heroFit }}" placeholder="Arrastra aquí tu foto de campaña (horizontal)" style="position:absolute;inset:0;width:100%;height:100%" hint-size="100%,100%"></x-import>
+      <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="hero-img" src="hero-img.webp" shape="rect" fit="{{ heroFit }}" placeholder="Arrastra aquí tu foto de campaña (horizontal)" style="position:absolute;inset:0;width:100%;height:100%" hint-size="100%,100%"></x-import>
     </sc-if>
-    <img class="nm-hero-mobile" src="fotos/banner-movil.jpg" alt="Nona Miranda" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+    <img class="nm-hero-mobile" src="banner-movil.jpg" alt="Nona Miranda" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
     <div style="position:absolute;left:0;right:0;top:0;height:220px;background:linear-gradient(to bottom,rgba(0,0,0,0.42),transparent);pointer-events:none"></div>
   </div>
 </section>
@@ -754,7 +754,7 @@ image-slot{position:absolute;inset:0;width:100%;height:100%;display:block;transi
 <section id="nosotros" data-screen-label="Sobre nosotros">
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));align-items:stretch">
     <div style="position:relative;min-height:480px;background:#eeece7">
-      <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="about-img" src="fotos/about-img.webp" shape="rect" placeholder="Arrastra una foto del taller o de la fundadora" style="position:absolute;inset:0;width:100%;height:100%" hint-size="100%,100%"></x-import>
+      <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="about-img" src="about-img.webp" shape="rect" placeholder="Arrastra una foto del taller o de la fundadora" style="position:absolute;inset:0;width:100%;height:100%" hint-size="100%,100%"></x-import>
     </div>
     <div style="padding:72px 48px;display:flex;flex-direction:column;justify-content:center;gap:24px">
       <p style="margin:0;font-size:12px;letter-spacing:0.24em;font-weight:600;color:#777">SOBRE NOSOTROS</p>
@@ -1045,24 +1045,24 @@ class Component extends DCLogic {
     // Fotos fijas incrustadas (permanentes, se ven en cualquier dispositivo).
     // clave = slotId de la Foto 1 (portada) del producto.
     const fixedPhotos = {
-      'p-billeteras-3-alt1': 'fotos/billetera-3.jpg',
-      'cat-bolsos': 'fotos/cat-bolsos.webp',
-      'cat-accesorios': 'fotos/cat-accesorios.webp',
-      'cat-billeteras': 'fotos/cat-billeteras.webp',
-      'cat-mochilas': 'fotos/cat-mochilas.webp',
-      'p-bolsos-1-alt1': 'fotos/p-bolsos-1-alt1.webp',
-      'p-bolsos-1-alt2': 'fotos/p-bolsos-1-alt2.webp',
-      'p-bolsos-1-alt3': 'fotos/p-bolsos-1-alt3.webp',
-      'p-billeteras-1-alt1': 'fotos/p-billeteras-1-alt1.webp',
-      'p-billeteras-1-alt2': 'fotos/p-billeteras-1-alt2.webp',
-      'p-billeteras-2-alt1': 'fotos/p-billeteras-2-alt1.webp',
-      'p-billeteras-4-alt1': 'fotos/p-billeteras-4-alt1.webp',
-      'p-billeteras-5-alt1': 'fotos/p-billeteras-5-alt1.webp',
-      'p-accesorios-1-alt1': 'fotos/p-accesorios-1-alt1.webp',
-      'p-accesorios-2-alt1': 'fotos/p-accesorios-2-alt1.webp',
-      'p-accesorios-3-alt1': 'fotos/p-accesorios-3-alt1.webp',
-      'p-accesorios-4-alt1': 'fotos/p-accesorios-4-alt1.webp',
-      'p-mochilas-1-alt1': 'fotos/p-mochilas-1-alt1.webp',
+      'p-billeteras-3-alt1': 'billetera-3.jpg',
+      'cat-bolsos': 'cat-bolsos.webp',
+      'cat-accesorios': 'cat-accesorios.webp',
+      'cat-billeteras': 'cat-billeteras.webp',
+      'cat-mochilas': 'cat-mochilas.webp',
+      'p-bolsos-1-alt1': 'p-bolsos-1-alt1.webp',
+      'p-bolsos-1-alt2': 'p-bolsos-1-alt2.webp',
+      'p-bolsos-1-alt3': 'p-bolsos-1-alt3.webp',
+      'p-billeteras-1-alt1': 'p-billeteras-1-alt1.webp',
+      'p-billeteras-1-alt2': 'p-billeteras-1-alt2.webp',
+      'p-billeteras-2-alt1': 'p-billeteras-2-alt1.webp',
+      'p-billeteras-4-alt1': 'p-billeteras-4-alt1.webp',
+      'p-billeteras-5-alt1': 'p-billeteras-5-alt1.webp',
+      'p-accesorios-1-alt1': 'p-accesorios-1-alt1.webp',
+      'p-accesorios-2-alt1': 'p-accesorios-2-alt1.webp',
+      'p-accesorios-3-alt1': 'p-accesorios-3-alt1.webp',
+      'p-accesorios-4-alt1': 'p-accesorios-4-alt1.webp',
+      'p-mochilas-1-alt1': 'p-mochilas-1-alt1.webp',
     };
     const srcFor = (id) => fixedPhotos[id] || '';
     const catalogData = {
@@ -1197,10 +1197,10 @@ class Component extends DCLogic {
         this.setState({ heroMode: 'video', heroVideoUrl: url });
       },
       categories: [
-        { name: 'Bolsos', count: '', slotId: 'cat-bolsos', photoSrc: 'fotos/cat-bolsos.webp', placeholder: 'Foto de bolsos (vertical)', open: () => this.openCat('bolsos') },
-        { name: 'Accesorios', count: '', slotId: 'cat-accesorios', photoSrc: 'fotos/cat-accesorios.webp', placeholder: 'Foto de accesorios (vertical)', soon: true, open: () => {} },
-        { name: 'Billeteras', count: '', slotId: 'cat-billeteras', photoSrc: 'fotos/cat-billeteras.webp', placeholder: 'Foto de billeteras (vertical)', open: () => this.openCat('billeteras') },
-        { name: 'Mochilas', count: '', slotId: 'cat-mochilas', photoSrc: 'fotos/cat-mochilas.webp', placeholder: 'Foto de mochilas (vertical)', open: () => this.openCat('mochilas') },
+        { name: 'Bolsos', count: '', slotId: 'cat-bolsos', photoSrc: 'cat-bolsos.webp', placeholder: 'Foto de bolsos (vertical)', open: () => this.openCat('bolsos') },
+        { name: 'Accesorios', count: '', slotId: 'cat-accesorios', photoSrc: 'cat-accesorios.webp', placeholder: 'Foto de accesorios (vertical)', soon: true, open: () => {} },
+        { name: 'Billeteras', count: '', slotId: 'cat-billeteras', photoSrc: 'cat-billeteras.webp', placeholder: 'Foto de billeteras (vertical)', open: () => this.openCat('billeteras') },
+        { name: 'Mochilas', count: '', slotId: 'cat-mochilas', photoSrc: 'cat-mochilas.webp', placeholder: 'Foto de mochilas (vertical)', open: () => this.openCat('mochilas') },
       ],
       // catálogo
       isHome: !s.view && !s.checkout && !s.corp,
@@ -1213,7 +1213,7 @@ class Component extends DCLogic {
       products: visibleProducts,
       igPosts: [1, 2, 3, 5, 1, 2, 3, 5, 1, 2, 3, 5].map((n, i) => ({
         slotId: 'ig-post-' + n,
-        photoSrc: [1, 2, 3, 5].indexOf(n) >= 0 ? 'fotos/ig-post-' + n + '.webp' : '',
+        photoSrc: [1, 2, 3, 5].indexOf(n) >= 0 ? 'ig-post-' + n + '.webp' : '',
         href: { 1: 'https://www.instagram.com/p/DU3wwTsFE-V/', 2: 'https://www.instagram.com/p/C6z5K9xgK9M/', 3: 'https://www.instagram.com/p/DISKn9hy7PF/' }[n] || 'https://www.instagram.com/nonamirandaper/',
       })),
       igRef: (el) => {
