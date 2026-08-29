@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="icon" type="image/png" href="fotos/favicon.png">
+<style>
+@font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Light.otf') format('opentype');font-weight:300;font-style:normal}
+@font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Medium.otf') format('opentype');font-weight:500;font-style:normal}
+@font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Extrabold.otf') format('opentype');font-weight:750;font-style:normal}
+body{margin:0;background:#ffffff;color:#0a0a0a;font-family:'Proxima Nova',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#0a0a0a}
+a:hover{color:#555}
+</style>
+</helmet>
+
+<header data-screen-label="Cabecera" style="border-bottom:1px solid #0a0a0a;background:#fff">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 48px">
+    <a href="index.html" style="display:flex;align-items:center;gap:12px;text-decoration:none">
+      <img src="fotos/logo-nona-miranda.png" alt="Nona Miranda" style="height:26px;object-fit:contain">
+    </a>
+    <a href="index.html" style="font-size:12px;letter-spacing:0.16em;font-weight:500;text-decoration:none">← VOLVER A LA TIENDA</a>
+  </div>
+</header>
+
+<section data-screen-label="Libro de Reclamaciones" style="min-height:80vh">
+  <div style="max-width:840px;margin:0 auto;padding:64px 48px">
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:40px">
+      <p style="margin:0;font-size:12px;letter-spacing:0.24em;font-weight:500;color:#777">CONFORME AL CÓDIGO DE PROTECCIÓN Y DEFENSA DEL CONSUMIDOR — LEY N.º 29571</p>
+      <h1 style="margin:0;font-weight:750;font-size:clamp(32px,4.5vw,56px);line-height:1;text-transform:uppercase;letter-spacing:-0.01em">Libro de Reclamaciones</h1>
+      <p style="margin:0;font-size:14px;color:#555;line-height:1.6">Razón social: {{ razonSocial }} · RUC: {{ ruc }} · Lima, Perú · infononamiranda@gmail.com</p>
+      <p style="margin:0;font-size:13px;color:#777;line-height:1.6">Fecha: {{ today }} · Hoja de reclamación virtual</p>
+    </div>
+
+    <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center;padding:64px 24px;border:1px solid #0a0a0a">
+        <div style="width:56px;height:56px;border:1px solid #0a0a0a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px">✓</div>
+        <p style="margin:0;font-weight:750;font-size:24px;text-transform:uppercase">Hoja de reclamación registrada</p>
+        <p style="margin:0;font-size:14px;color:#555;max-width:52ch;line-height:1.6">N.º {{ recordNo }} · Hemos recibido tu {{ sentTipo }}. Te responderemos al correo indicado en un plazo máximo de 15 días hábiles, conforme a ley.</p>
+        <button onClick="{{ reset }}" style="margin-top:8px;background:none;border:none;font-family:'Proxima Nova',sans-serif;font-size:12px;letter-spacing:0.16em;font-weight:500;text-decoration:underline;text-underline-offset:3px;cursor:pointer;color:#0a0a0a">REGISTRAR OTRA</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:36px">
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <p style="margin:0;font-size:13px;letter-spacing:0.2em;font-weight:500;border-bottom:1px solid #0a0a0a;padding-bottom:10px">1 · IDENTIFICACIÓN DEL CONSUMIDOR</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <label style="font-size:11px;letter-spacing:0.2em;font-weight:500;color:#555">NOMBRE COMPLETO *</label>
+              <input value="{{ fName }}" onChange="{{ onName }}" placeholder="Nombres y apellidos" style="border:none;border-bottom:1px solid #0a0a0a;background:transparent;padding:10px 0;font-family:'Proxima Nova',sans-serif;font-size:15px;outline:none;color:#0a0a0a">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <label style="font-size:11px;letter-spacing:0.2em;font-weight:500;color:#555">DNI / CE *</label>
+              <input value="{{ fDni }}" onChange="{{ onDni }}" placeholder="Documento de identidad" style="border:none;border-bottom:1px solid #0a0a0a;background:transparent;padding:10px 0;font-family:'Proxima Nova',sans-serif;font-size:15px;outline:none;color:#0a0a0a">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <label style="font-size:11px;letter-spacing:0.2em;font-weight:500;color:#555">TELÉFONO *</label>
+              <input value="{{ fPhone }}" onChange="{{ onPhone }}" placeholder="9XX XXX XXX" style="border:none;border-bottom:1px solid #0a0a0a;background:transparent;padding:10px 0;font-family:'Proxima Nova',sans-serif;font-size:15px;outline:none;color:#0a0a0a">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <label style="font-size:11px;letter-spacing:0.2em;font-weight:500;color:#555">CORREO *</label>
+              <input value="{{ fEmail }}" onChange="{{ onEmail }}" placeholder="tu@correo.com" style="border:none;border-bottom:1px solid #0a0a0a;background:transparent;padding:10px 0;font-family:'Proxima Nova',sans-serif;font-size:15px;outline:none;color:#0a0a0a">
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label style="font-size:11px;letter-spacing:0.2em;font-weight:500;color:#555">DOMICILIO *</label>
+            <input value="{{ fAddress }}" onChange="{{ onAddress }}" placeholder="Dirección, distrito, provincia" style="border:none;border-bottom:1px solid #0a0a0a;background:transparent;padding:10px 0;font-family:'Proxima Nova',sans-serif;font-size:15px;outline:none;color:#0a0a0a">
+          </div>
+          <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:#3a3a3a;cursor:pointer">
+            <input type="checkbox" checked="{{ isMinor }}" onChange="{{ onMinor }}" style="width:16px;height:16px;accent-color:#0a0a0a">
+            Soy menor de edad
+          </label>
+          <sc-if value="{{ isMinor }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px">
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <label style="font-size:11px;letter-spacing:0.2em;font-weight:500;color:#555">NOMBRE DEL PADRE, MADRE O APODERADO *</label>
+                <input value="{{ fGuardian }}" onChange="{{ onGuardian }}" placeholder="Nombres y apellidos" style="border:none;border-bottom:1px solid #0a0a0a;background:transparent;padding:10px 0;font-family:'Proxima Nova',sans-serif;font-size:15px;outline:none;color:#0a0a0a">
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <label style="font-size:11px;letter-spacing:0.2em;font-weight:500;color:#555">DNI DEL APODERADO *</label>
+                <input value="{{ fGuardianDni }}" onChange="{{ onGuardianDni }}" placeholder="Documento de identidad" style="border:none;border-bottom:1px solid #0a0a0a;background:transparent;padding:10px 0;font-family:'Proxima Nova',sans-serif;font-size:15px;outline:none;color:#0a0a0a">
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <p style="margin:0;font-size:13px;letter-spacing:0.2em;font-weight:500;border-bottom:1px solid #0a0a0a;padding-bottom:10px">2 · TIPO DE SOLICITUD</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button onClick="{{ pickReclamo }}" style="flex:1;min-width:200px;padding:16px;border:1px solid #0a0a0a;background:{{ reclamoBg }};color:{{ reclamoColor }};font-family:'Proxima Nova',sans-serif;font-size:12px;letter-spacing:0.14em;font-weight:500;cursor:pointer;text-align:left">RECLAMO<br><span style="font-weight:300;font-size:11px;letter-spacing:0.04em">Disconformidad con el producto o servicio</span></button>
+            <button onClick="{{ pickQueja }}" style="flex:1;min-width:200px;padding:16px;border:1px solid #0a0a0a;background:{{ quejaBg }};color:{{ quejaColor }};font-family:'Proxima Nova',sans-serif;font-size:12px;letter-spacing:0.14em;font-weight:500;cursor:pointer;text-align:left">QUEJA<br><span style="font-weight:300;font-size:11px;letter-spacing:0.04em">Malestar respecto a la atención al público</span></button>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <p style="margin:0;font-size:13px;letter-spacing:0.2em;font-weight:500;border-bottom:1px solid #0a0a0a;padding-bottom:10px">3 · IDENTIFICACIÓN DEL BIEN CONTRATADO</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button onClick="{{ pickProducto }}" style="flex:1;min-width:160px;padding:14px;border:1px solid #0a0a0a;background:{{ prodBg }};color:{{ prodColor }};font-family:'Proxima Nova',sans-serif;font-size:12px;letter-spacing:0.14em;font-weight:500;cursor:pointer">PRODUCTO</button>
+            <button onClick="{{ pickServicio }}" style="flex:1;min-width:160px;padding:14px;border:1px solid #0a0a0a;background:{{ servBg }};color:{{ servColor }};font-family:'Proxima Nova',sans-serif;font-size:12px;letter-spacing:0.14em;font-weight:500;cursor:pointer">SERVICIO</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <label style="font-size:11px;letter-spacing:0.2em;font-weight:500;color:#555">DESCRIPCIÓN DEL BIEN / PEDIDO</label>
+              <input value="{{ fProduct }}" onChange="{{ onProduct }}" placeholder="Ej.: Mini Bag, pedido del 05/07" style="border:none;border-bottom:1px solid #0a0a0a;background:transparent;padding:10px 0;font-family:'Proxima Nova',sans-serif;font-size:15px;outline:none;color:#0a0a0a">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <label style="font-size:11px;letter-spacing:0.2em;font-weight:500;color:#555">MONTO RECLAMADO (S/)</label>
+              <input value="{{ fAmount }}" onChange="{{ onAmount }}" placeholder="Ej.: 30" style="border:none;border-bottom:1px solid #0a0a0a;background:transparent;padding:10px 0;font-family:'Proxima Nova',sans-serif;font-size:15px;outline:none;color:#0a0a0a">
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <p style="margin:0;font-size:13px;letter-spacing:0.2em;font-weight:500;border-bottom:1px solid #0a0a0a;padding-bottom:10px">4 · DETALLE DE LA RECLAMACIÓN Y PEDIDO DEL CONSUMIDOR</p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label style="font-size:11px;letter-spacing:0.2em;font-weight:500;color:#555">DESCRIPCIÓN DE LOS HECHOS *</label>
+            <textarea value="{{ fDetail }}" onChange="{{ onDetail }}" rows="4" placeholder="Cuéntanos qué sucedió" style="border:none;border-bottom:1px solid #0a0a0a;background:transparent;padding:10px 0;font-family:'Proxima Nova',sans-serif;font-size:15px;outline:none;resize:vertical;color:#0a0a0a"></textarea>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label style="font-size:11px;letter-spacing:0.2em;font-weight:500;color:#555">PEDIDO DEL CONSUMIDOR *</label>
+            <textarea value="{{ fRequest }}" onChange="{{ onRequest }}" rows="3" placeholder="¿Qué solución esperas? (cambio, devolución, etc.)" style="border:none;border-bottom:1px solid #0a0a0a;background:transparent;padding:10px 0;font-family:'Proxima Nova',sans-serif;font-size:15px;outline:none;resize:vertical;color:#0a0a0a"></textarea>
+          </div>
+        </div>
+
+        <sc-if value="{{ error }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0;font-size:13px;color:#b3261e">{{ error }}</p>
+        </sc-if>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <button onClick="{{ submit }}" style="align-self:flex-start;background:#0a0a0a;color:#fff;border:none;font-family:'Proxima Nova',sans-serif;font-size:12px;letter-spacing:0.18em;font-weight:500;padding:16px 44px;cursor:pointer;transition:background 0.2s" style-hover="background:#3b3b3b">REGISTRAR {{ tipoLabel }} →</button>
+          <p style="margin:0;font-size:12px;color:#999;line-height:1.6;max-width:70ch">La formulación del reclamo no impide acudir a otras vías de solución de controversias ni es requisito previo para interponer una denuncia ante INDECOPI. El proveedor deberá dar respuesta en un plazo no mayor a quince (15) días hábiles.</p>
+        </div>
+
+      </div>
+    </sc-if>
+  </div>
+</section>
+
+<footer data-screen-label="Pie" style="background:#0a0a0a;color:#fff">
+  <div style="padding:28px 48px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <span style="font-size:12px;letter-spacing:0.14em;color:#bbb">NONA MIRANDA © 2026</span>
+    <a href="index.html" style="font-size:12px;letter-spacing:0.14em;color:#bbb;text-decoration:none" style-hover="color:#fff">VOLVER A LA TIENDA</a>
+  </div>
+</footer>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;razonSocial&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;NONA MIRANDA&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos del proveedor&quot;},&quot;ruc&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;—&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Datos del proveedor&quot;}}">
+class Component extends DCLogic {
+  state = {
+    sent: false, tipo: 'RECLAMO', bien: 'PRODUCTO', error: '', recordNo: '', sentTipo: '',
+    fName: '', fDni: '', fPhone: '', fEmail: '', fAddress: '',
+    fProduct: '', fAmount: '', fDetail: '', fRequest: '',
+    isMinor: false, fGuardian: '', fGuardianDni: '',
+  };
+  renderVals() {
+    const s = this.state;
+    const set = (k) => (e) => this.setState({ [k]: e.target.value });
+    return {
+      sent: s.sent,
+      notSent: !s.sent,
+      error: s.error,
+      recordNo: s.recordNo,
+      sentTipo: s.sentTipo === 'RECLAMO' ? 'reclamo' : 'queja',
+      tipoLabel: s.tipo,
+      razonSocial: this.props.razonSocial ?? 'NONA MIRANDA',
+      ruc: this.props.ruc ?? '—',
+      today: new Date().toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+      isMinor: s.isMinor,
+      onMinor: (e) => this.setState({ isMinor: e.target.checked }),
+      fGuardian: s.fGuardian, fGuardianDni: s.fGuardianDni,
+      onGuardian: (e) => this.setState({ fGuardian: e.target.value }),
+      onGuardianDni: (e) => this.setState({ fGuardianDni: e.target.value }),
+      pickProducto: () => this.setState({ bien: 'PRODUCTO' }),
+      pickServicio: () => this.setState({ bien: 'SERVICIO' }),
+      prodBg: s.bien === 'PRODUCTO' ? '#0a0a0a' : 'transparent',
+      prodColor: s.bien === 'PRODUCTO' ? '#fff' : '#0a0a0a',
+      servBg: s.bien === 'SERVICIO' ? '#0a0a0a' : 'transparent',
+      servColor: s.bien === 'SERVICIO' ? '#fff' : '#0a0a0a',
+      fName: s.fName, fDni: s.fDni, fPhone: s.fPhone, fEmail: s.fEmail, fAddress: s.fAddress,
+      fProduct: s.fProduct, fAmount: s.fAmount, fDetail: s.fDetail, fRequest: s.fRequest,
+      onName: set('fName'), onDni: set('fDni'), onPhone: set('fPhone'), onEmail: set('fEmail'), onAddress: set('fAddress'),
+      onProduct: set('fProduct'), onAmount: set('fAmount'), onDetail: set('fDetail'), onRequest: set('fRequest'),
+      pickReclamo: () => this.setState({ tipo: 'RECLAMO' }),
+      pickQueja: () => this.setState({ tipo: 'QUEJA' }),
+      reclamoBg: s.tipo === 'RECLAMO' ? '#0a0a0a' : 'transparent',
+      reclamoColor: s.tipo === 'RECLAMO' ? '#fff' : '#0a0a0a',
+      quejaBg: s.tipo === 'QUEJA' ? '#0a0a0a' : 'transparent',
+      quejaColor: s.tipo === 'QUEJA' ? '#fff' : '#0a0a0a',
+      reset: () => this.setState({ sent: false, fName: '', fDni: '', fPhone: '', fEmail: '', fAddress: '', fProduct: '', fAmount: '', fDetail: '', fRequest: '', error: '' }),
+      submit: () => {
+        if (!s.fName.trim() || !s.fDni.trim() || !s.fPhone.trim() || !s.fEmail.trim() || !s.fAddress.trim() || !s.fDetail.trim() || !s.fRequest.trim()) {
+          this.setState({ error: 'Completa los campos obligatorios marcados con *' });
+          return;
+        }
+        if (s.isMinor && (!s.fGuardian.trim() || !s.fGuardianDni.trim())) {
+          this.setState({ error: 'Al ser menor de edad, indica los datos de tu padre, madre o apoderado' });
+          return;
+        }
+        const d = new Date();
+        const no = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '-' + String(Date.now()).slice(-4);
+        const msg = 'LIBRO DE RECLAMACIONES — HOJA N.º ' + no +
+          '\nTipo: ' + s.tipo +
+          '\nFecha: ' + d.toLocaleDateString('es-PE') +
+          '\n\nCONSUMIDOR' +
+          '\nNombre: ' + s.fName +
+          '\nDNI/CE: ' + s.fDni +
+          '\nTeléfono: ' + s.fPhone +
+          '\nCorreo: ' + s.fEmail +
+          '\nDomicilio: ' + s.fAddress +
+          (s.isMinor ? '\nMenor de edad — Apoderado: ' + s.fGuardian + ' (DNI ' + s.fGuardianDni + ')' : '') +
+          '\n\nBIEN CONTRATADO: ' + s.bien +
+          (s.fProduct ? '\nDescripción: ' + s.fProduct : '') +
+          (s.fAmount ? '\nMonto reclamado: S/ ' + s.fAmount : '') +
+          '\nHechos: ' + s.fDetail +
+          '\nPedido del consumidor: ' + s.fRequest;
+        // envío al correo del negocio vía FormSubmit (funciona en el sitio publicado)
+        fetch('https://formsubmit.co/ajax/infononamiranda@gmail.com', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            _subject: 'Libro de Reclamaciones — Hoja N.º ' + no + ' (' + s.tipo + ')',
+            mensaje: msg,
+            correo_del_consumidor: s.fEmail,
+          }),
+        }).catch(() => {
+          // respaldo: abre el correo del dispositivo con la hoja lista para enviar
+          window.location.href = 'mailto:infononamiranda@gmail.com?subject=' + encodeURIComponent('Libro de Reclamaciones — Hoja N.º ' + no) + '&body=' + encodeURIComponent(msg);
+        });
+        this.setState({ sent: true, recordNo: no, sentTipo: s.tipo, error: '' });
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>
