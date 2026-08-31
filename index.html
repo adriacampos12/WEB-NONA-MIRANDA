@@ -933,7 +933,7 @@ class Component extends DCLogic {
     orderDone: false, orderNum: '', orderMsg: '',
     coDept: '', coProv: '', coDist: '',
     coDelivery: 'Agencia', coAddress: '', coKey: '',
-    coDate: null, calOffset: 0,
+    coDate: null, calOffset: null,
     coupon: '', couponApplied: null, couponMsg: '', couponOk: false,
   };
   // Días de envío: martes (2), jueves (4), sábado (6)
@@ -952,14 +952,17 @@ class Component extends DCLogic {
     const s = this.state;
     const earliest = this.earliestDelivery();
     const base = new Date(); base.setHours(0, 0, 0, 0);
-    const month = new Date(base.getFullYear(), base.getMonth() + s.calOffset, 1);
+    // primer mes que realmente tiene días de entrega disponibles
+    const minOffset = (earliest.getFullYear() - base.getFullYear()) * 12 + (earliest.getMonth() - base.getMonth());
+    const offset = s.calOffset == null ? minOffset : s.calOffset;
+    const month = new Date(base.getFullYear(), base.getMonth() + offset, 1);
     const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
     const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
     const cells = [];
     for (let i = 0; i < month.getDay(); i++) cells.push({ num: '', bg: 'transparent', color: '#0a0a0a', cursor: 'default', border: 'transparent', pick: null });
     for (let d = 1; d <= daysInMonth; d++) {
       const date = new Date(month.getFullYear(), month.getMonth(), d);
-      const iso = date.toISOString().slice(0, 10);
+      const iso = month.getFullYear() + '-' + String(month.getMonth() + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
       const valid = this.isShipDay(date) && date >= earliest;
       const selected = s.coDate === iso;
       cells.push({
@@ -981,8 +984,8 @@ class Component extends DCLogic {
     return {
       calLabel: meses[month.getMonth()] + ' ' + month.getFullYear(),
       calDays: cells,
-      calPrev: () => this.setState({ calOffset: Math.max(0, s.calOffset - 1) }),
-      calNext: () => this.setState({ calOffset: Math.min(3, s.calOffset + 1) }),
+      calPrev: () => this.setState({ calOffset: Math.max(minOffset, offset - 1) }),
+      calNext: () => this.setState({ calOffset: Math.min(minOffset + 3, offset + 1) }),
       dateChosen: !!s.coDate,
       coDateLabel,
     };
