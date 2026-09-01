@@ -1793,7 +1793,14 @@ class Component extends DCLogic {
       var s = document.createElement('script');
       s.src = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/ext/classic.js';
       s.setAttribute('kr-public-key', publicKey);
-      s.onload = function () { resolve(window.KR); };
+      s.onload = function () {
+        var tries = 0;
+        var poll = setInterval(function () {
+          tries++;
+          if (window.KR) { clearInterval(poll); resolve(window.KR); }
+          else if (tries > 100) { clearInterval(poll); reject(new Error('El formulario de pago tardó demasiado en cargar.')); }
+        }, 50);
+      };
       s.onerror = function () { reject(new Error('No se pudo cargar el formulario de pago.')); };
       document.head.appendChild(s);
     });
