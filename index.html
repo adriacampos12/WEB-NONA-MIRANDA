@@ -1829,7 +1829,7 @@ class Component extends DCLogic {
       .then(function (res) {
         if (!res.ok) { throw new Error(res.error || 'No se pudo iniciar el pago.'); }
         return loadClassicJs(res.publicKey).then(function (KR) {
-          KR.setFormConfig({ formToken: res.formToken, 'kr-language': 'es-PE' });
+          KR.setFormConfig({ formToken: res.formToken, 'kr-public-key': res.publicKey, 'kr-language': 'es-PE' });
           return KR.attachForm('#micuentawebstd_rest_wrapper');
         }).then(function (attached) {
           var KR = window.KR;
