@@ -1581,7 +1581,8 @@ class Component extends DCLogic {
               ruc: s.coDoc === 'Factura' ? s.coRuc : '',
               razonSocial: s.coDoc === 'Factura' ? s.coRazon : '',
               comprobanteImagen: '',
-              comprobanteImagenNombre: ''
+              comprobanteImagenNombre: '',
+              productosJson: JSON.stringify(s.cart.map((it) => ({ id: it.slotId, cantidad: it.qty })))
           };
           // envío por formulario oculto: no depende de CORS ni de permisos de lectura
           const enviarHoja = (datos) => {
@@ -1630,7 +1631,14 @@ class Component extends DCLogic {
           fd.append('pedido', msg);
           fetch('https://formsubmit.co/ajax/infononamiranda@gmail.com', { method: 'POST', body: fd }).catch(() => {});
         } catch (err) {}
-        this.setState({ orderDone: true, orderNum: num, orderMsg: msg, coError: '' });
+        this.setState({ coError: '' });
+        if (window.__nmIzipay) {
+          window.__nmIzipay.open(Number(t.total), num, () => {
+            this.setState({ orderDone: true, orderNum: num, orderMsg: msg, coError: '' });
+          });
+        } else {
+          this.setState({ orderDone: true, orderNum: num, orderMsg: msg, coError: '' });
+        }
       },
       // boletín
       newsEmail: s.newsEmail,
@@ -1759,6 +1767,106 @@ class Component extends DCLogic {
     };
   }
 }
+</script>
+
+<div id="izipay-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,10,10,0.6);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;border-radius:12px;padding:28px 24px;max-width:440px;width:100%;max-height:88vh;overflow:auto;position:relative;font-family:'Proxima Nova',sans-serif;">
+    <button id="izipay-modal-close" aria-label="Cerrar" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:22px;line-height:1;cursor:pointer;color:#0a0a0a;">&times;</button>
+    <h3 style="margin:0 0 4px;font-size:16px;letter-spacing:0.06em;text-transform:uppercase;color:#0a0a0a;">Pagar con Izipay</h3>
+    <p style="margin:0 0 18px;font-size:12px;color:#777;">Tarjeta, Yape o Plin — pago 100% seguro y directo a Nona Miranda.</p>
+    <div id="izipay-modal-error" style="display:none;background:#fdecea;color:#b3261e;font-size:13px;padding:10px 12px;border-radius:6px;margin-bottom:14px;"></div>
+    <div id="izipay-modal-loading" style="font-size:13px;color:#555;padding:20px 0;text-align:center;">Cargando formulario de pago...</div>
+    <div id="micuentawebstd_rest_wrapper"><div class="kr-embedded"></div></div>
+  </div>
+</div>
+<script>
+(function () {
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyKnaU1BQab6SH03WGMAnxPM4QXsYYZRSF3iRwaUeGIjzcWkTlHHOUexqF0itrQwhW_/exec';
+
+  function loadClassicJs(publicKey) {
+    return new Promise(function (resolve, reject) {
+      if (window.KR) { resolve(window.KR); return; }
+      var css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/ext/classic-reset.css';
+      document.head.appendChild(css);
+      var s = document.createElement('script');
+      s.src = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/ext/classic.js';
+      s.setAttribute('kr-public-key', publicKey);
+      s.onload = function () { resolve(window.KR); };
+      s.onerror = function () { reject(new Error('No se pudo cargar el formulario de pago.')); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function showError(msg) {
+    var loading = document.getElementById('izipay-modal-loading');
+    var errBox = document.getElementById('izipay-modal-error');
+    if (loading) loading.style.display = 'none';
+    if (errBox) { errBox.textContent = msg; errBox.style.display = 'block'; }
+  }
+
+  function open(monto, numeroPedido, onSuccess) {
+    var overlay = document.getElementById('izipay-modal-overlay');
+    var errBox = document.getElementById('izipay-modal-error');
+    var loading = document.getElementById('izipay-modal-loading');
+    var wrapper = document.getElementById('micuentawebstd_rest_wrapper');
+    if (wrapper) wrapper.innerHTML = '<div class="kr-embedded"></div>';
+    errBox.style.display = 'none';
+    loading.textContent = 'Cargando formulario de pago...';
+    loading.style.display = 'block';
+    overlay.style.display = 'flex';
+
+    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ accion: 'crearPago', monto: monto, numeroPedido: numeroPedido }) })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (!res.ok) { throw new Error(res.error || 'No se pudo iniciar el pago.'); }
+        return loadClassicJs(res.publicKey).then(function (KR) {
+          KR.setFormConfig({ formToken: res.formToken, 'kr-language': 'es-PE' });
+          return KR.attachForm('#micuentawebstd_rest_wrapper');
+        }).then(function (attached) {
+          var KR = window.KR;
+          loading.style.display = 'none';
+          KR.showForm(attached.result.formId);
+          KR.onSubmit(function (paymentData) {
+            loading.textContent = 'Verificando pago...';
+            loading.style.display = 'block';
+            errBox.style.display = 'none';
+            fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ accion: 'confirmarPago', krAnswer: paymentData.rawClientAnswer, krHash: paymentData.hash }) })
+              .then(function (r2) { return r2.json(); })
+              .then(function (conf) {
+                loading.style.display = 'none';
+                if (conf.ok && conf.pagado) {
+                  overlay.style.display = 'none';
+                  onSuccess();
+                } else {
+                  showError('El pago no se completó. Intenta de nuevo o usa otra tarjeta.');
+                }
+              })
+              .catch(function () {
+                showError('No pudimos verificar el pago. Si el cargo se realizó, contáctanos por WhatsApp.');
+              });
+            return false;
+          });
+        });
+      })
+      .catch(function (err) {
+        showError((err && err.message) || 'No se pudo iniciar el pago con Izipay.');
+      });
+  }
+
+  function close() {
+    var overlay = document.getElementById('izipay-modal-overlay');
+    if (overlay) overlay.style.display = 'none';
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var closeBtn = document.getElementById('izipay-modal-close');
+    if (closeBtn) closeBtn.onclick = close;
+  });
+
+  window.__nmIzipay = { open: open, close: close };
+})();
 </script>
 </body>
 </html>
