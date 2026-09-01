@@ -171,7 +171,7 @@ image-slot{position:absolute;inset:0;width:100%;height:100%;display:block;transi
           <span>TOTAL</span>
           <span>{{ cartTotal }}</span>
         </div>
-        <p style="margin:0;font-size:11px;letter-spacing:0.06em;color:#777">Envío gratis a partir de S/200 · Entregas en cualquier agencia Shalom u Olva · Pagos: Yape, Transferencia, Mercado Pago</p>
+        <p style="margin:0;font-size:11px;letter-spacing:0.06em;color:#777">Envío gratis a partir de S/200 · Entregas en cualquier agencia Shalom u Olva · Pagos: Izipay (tarjeta, Yape o Plin)</p>
         <button onClick="{{ goCheckout }}" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#0a0a0a;color:#fff;border:none;font-family:'Proxima Nova',sans-serif;font-size:13px;letter-spacing:0.16em;font-weight:600;padding:16px 20px;cursor:pointer;transition:background 0.2s" style-hover="background:#3b3b3b">PAGAR AHORA</button>
       </div>
     </sc-if>
@@ -356,47 +356,18 @@ image-slot{position:absolute;inset:0;width:100%;height:100%;display:block;transi
         </sc-if>
 
         <p style="margin:6px 0 0;font-size:12px;letter-spacing:0.2em;font-weight:600;color:#777">5 · MÉTODO DE PAGO</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button onClick="{{ pickYape }}" style="flex:1;min-width:110px;padding:14px;border:1px solid #0a0a0a;background:{{ yapeBg }};color:{{ yapeColor }};font-family:'Proxima Nova',sans-serif;font-size:12px;letter-spacing:0.14em;font-weight:600;cursor:pointer">YAPE</button>
-          <button onClick="{{ pickTransfer }}" style="flex:1;min-width:110px;padding:14px;border:1px solid #0a0a0a;background:{{ transferBg }};color:{{ transferColor }};font-family:'Proxima Nova',sans-serif;font-size:12px;letter-spacing:0.14em;font-weight:600;cursor:pointer">TRANSFERENCIA</button>
-          <button onClick="{{ pickMP }}" style="flex:1;min-width:110px;padding:14px;border:1px solid #0a0a0a;background:{{ mpBg }};color:{{ mpColor }};font-family:'Proxima Nova',sans-serif;font-size:12px;letter-spacing:0.14em;font-weight:600;cursor:pointer">MERCADO PAGO</button>
-          <button onClick="{{ pickIzipay }}" style="flex:1;min-width:110px;padding:14px;border:1px solid #0a0a0a;background:{{ izipayBg }};color:{{ izipayColor }};font-family:'Proxima Nova',sans-serif;font-size:12px;letter-spacing:0.14em;font-weight:600;cursor:pointer">TARJETA (IZIPAY)</button>
+        <div style="display:flex;align-items:center;gap:12px;padding:16px;border:1px solid #0a0a0a;background:#fff">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M2 10h20"></path></svg>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <p style="margin:0;font-size:13px;letter-spacing:0.14em;font-weight:600">IZIPAY</p>
+            <p style="margin:0;font-size:12.5px;line-height:1.5;color:#555">Tarjeta, Yape o Plin.</p>
+          </div>
         </div>
-        <sc-if value="{{ payIsMP }}" hint-placeholder-val="{{ false }}">
-          <p style="margin:0;font-size:13px;line-height:1.6;color:#555">Al confirmar, te llevaremos al enlace de Mercado Pago para pagar con tarjeta.</p>
-        </sc-if>
-        <sc-if value="{{ payIsIzipay }}" hint-placeholder-val="{{ false }}">
-          <p style="margin:0;font-size:13px;line-height:1.6;color:#555">Al confirmar, te enviaremos por WhatsApp el link de pago con tarjeta de Izipay.</p>
-        </sc-if>
+        <p style="margin:0;font-size:13px;line-height:1.6;color:#555">Al confirmar, te enviaremos por WhatsApp el link de pago de Izipay.</p>
         <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#f6f5f2;border:1px solid #eaeaea">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
-          <p style="margin:0;font-size:12px;line-height:1.5;color:#555">Pago 100% seguro. Nunca te pediremos los datos de tu tarjeta: el pago se procesa directo en Yape, tu banco o Mercado Pago (certificado PCI).</p>
+          <p style="margin:0;font-size:12px;line-height:1.5;color:#555">Pago 100% seguro. Nunca te pediremos los datos de tu tarjeta: el pago se procesa directo en Izipay (certificado PCI).</p>
         </div>
-        <sc-if value="{{ payIsYape }}" hint-placeholder-val="{{ false }}">
-          <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;padding:18px;border:1px solid #e2e0db;background:#f6f5f2">
-            <img src="qr-yape.jpeg" alt="QR de Yape — Adriana Naomi Campos Huapaya" style="width:170px;height:auto;flex-shrink:0;border:1px solid #e2e0db;display:block">
-            <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:10px">
-              <p style="margin:0;font-size:13px;line-height:1.6;color:#3a3a3a">Escanea el QR desde tu app de Yape y paga el total.</p>
-              <p style="margin:0;font-size:12px;letter-spacing:0.16em;font-weight:600;color:#777">SUBE TU CONSTANCIA</p>
-              <label style="display:inline-flex;align-items:center;gap:10px;border:1px dashed #0a0a0a;padding:12px 16px;cursor:pointer;font-size:13px;background:#fff" style-hover="background:#efeeea">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="1.8"><path d="M12 17V5"></path><path d="M7 10l5-5 5 5"></path><path d="M4 19h16"></path></svg>
-                Elegir foto del Yape
-                <input type="file" accept="image/*" onChange="{{ pickVoucher }}" style="display:none">
-              </label>
-              <sc-if value="{{ voucherUrl }}" hint-placeholder-val="{{ false }}">
-                <div style="display:flex;align-items:center;gap:12px">
-                  <img ref="{{ voucherImgRef }}" alt="Constancia de pago" style="width:56px;height:56px;object-fit:cover;border:1px solid #e2e0db">
-                  <span style="font-size:12px;color:#555;flex:1;word-break:break-all">{{ voucherName }}</span>
-                  <button onClick="{{ clearVoucher }}" style="background:none;border:none;color:#b3261e;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline">Quitar</button>
-                </div>
-              </sc-if>
-              <p style="margin:0;font-size:11.5px;color:#999;line-height:1.5">Al confirmar se abre WhatsApp con tu pedido. Adjunta ahí la misma captura para validar el pago.</p>
-            </div>
-          </div>
-        </sc-if>
-        <sc-if value="{{ payIsTransfer }}" hint-placeholder-val="{{ false }}">
-          <p style="margin:0;font-size:13px;line-height:1.6;color:#555">Al confirmar, te enviaremos por WhatsApp los datos de la cuenta para completar tu transferencia y cerrar el pedido.</p>
-        </sc-if>
         <sc-if value="{{ coError }}" hint-placeholder-val="{{ false }}">
           <p style="margin:0;font-size:13px;color:#b3261e">{{ coError }}</p>
         </sc-if>
@@ -864,54 +835,63 @@ image-slot{position:absolute;inset:0;width:100%;height:100%;display:block;transi
 
 </sc-if>
 
+<!-- ═══════════ BOLETÍN ═══════════ -->
+<section data-screen-label="Boletín" style="background:#0a0a0a;color:#fff;border-top:1px solid #0a0a0a">
+  <div style="max-width:820px;margin:0 auto;padding:84px 32px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center">
+    <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="square"><rect x="2" y="5" width="20" height="14"></rect><path d="M2 6l10 7 10-7"></path></svg>
+    <h2 style="margin:0;font-stretch:120%;font-weight:750;font-size:clamp(26px,3.4vw,44px);line-height:1.12;letter-spacing:-0.01em;color:#fff;font-family:'Proxima Nova',sans-serif;text-wrap:pretty">¡Suscríbete a nuestro boletín de Nona Miranda!</h2>
+    <p style="margin:0;font-size:12.5px;letter-spacing:0.22em;font-weight:600;text-transform:uppercase;color:#bbb;font-family:'Proxima Nova',sans-serif">Únete a Nona Miranda</p>
+    <sc-if value="{{ newsNotSent }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;align-items:flex-end;justify-content:center;gap:20px;flex-wrap:wrap;width:100%;max-width:560px;margin-top:14px">
+        <input type="email" value="{{ newsEmail }}" onChange="{{ setNewsEmail }}" placeholder="Tu correo electrónico" style="flex:1;min-width:220px;background:none;border:none;border-bottom:1px solid #fff;padding:12px 2px;font-family:'Proxima Nova',sans-serif;font-size:15px;color:#fff;outline:none">
+        <button onClick="{{ newsSubmit }}" style="background:none;border:none;border-bottom:1px solid #fff;padding:12px 2px;cursor:pointer;font-family:'Proxima Nova',sans-serif;font-size:13px;letter-spacing:0.2em;font-weight:700;color:#fff" style-hover="opacity:0.6">SUSCRIBIR</button>
+      </div>
+      <sc-if value="{{ newsError }}" hint-placeholder-val="{{ false }}">
+        <p style="margin:0;font-size:13px;color:#ff9a92">{{ newsError }}</p>
+      </sc-if>
+    </sc-if>
+    <sc-if value="{{ newsSent }}" hint-placeholder-val="{{ false }}">
+      <p style="margin:14px 0 0;font-size:14px;color:#fff">Gracias por suscribirte. Pronto sabrás de nosotras.</p>
+    </sc-if>
+  </div>
+</section>
+
 <!-- ═══════════ PIE ═══════════ -->
-<footer data-screen-label="Pie de página" style="background:#0a0a0a;color:#fff">
+<footer data-screen-label="Pie de página" style="background:#f6f5f2;color:#0a0a0a">
   <div style="padding:64px 48px 28px;display:flex;flex-direction:column;gap:48px">
-    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:32px;align-items:flex-end">
-      <p style="margin:0 0 0 -0.045em;font-stretch:120%;font-weight:750;font-size:clamp(38px,7vw,96px);line-height:0.95;letter-spacing:-0.01em;text-transform:uppercase">Nona<br>Miranda</p>
-      <div style="display:flex;flex-direction:column;gap:12px;max-width:360px;width:100%">
-        <p style="margin:0;font-size:12px;letter-spacing:0.2em;font-weight:600;color:#bbb">ÚNETE A LA LISTA</p>
-        <div style="display:flex;gap:0;border-bottom:1px solid #fff">
-          <input value="{{ newsEmail }}" onChange="{{ onNewsEmail }}" placeholder="tu@correo.com" style="flex:1;background:transparent;border:none;color:#fff;font-family:'Proxima Nova',sans-serif;font-size:14px;padding:10px 0;outline:none">
-          <button onClick="{{ submitNews }}" style="background:none;border:none;color:#fff;font-family:'Proxima Nova',sans-serif;font-size:12px;letter-spacing:0.16em;font-weight:600;cursor:pointer">{{ newsLabel }}</button>
-        </div>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;border-top:1px solid #333;padding-top:36px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;border-top:1px solid #e2e0db;padding-top:36px">
       <div style="display:flex;flex-direction:column;gap:14px">
-        <p style="margin:0;font-size:12px;letter-spacing:0.2em;font-weight:600;color:#fff">INFORMACIÓN</p>
-        <a href="#" style="color:#bbb;text-decoration:none;font-size:13px" style-hover="color:#fff">Envíos y Pagos</a>
-        <a href="#" style="color:#bbb;text-decoration:none;font-size:13px" style-hover="color:#fff">Preguntas frecuentes</a>
+        <p style="margin:0;font-size:12px;letter-spacing:0.2em;font-weight:600;color:#0a0a0a">INFORMACIÓN</p>
+        <a href="#" style="color:#555;text-decoration:none;font-size:13px" style-hover="color:#0a0a0a">Envíos y Pagos</a>
+        <a href="#" style="color:#555;text-decoration:none;font-size:13px" style-hover="color:#0a0a0a">Preguntas frecuentes</a>
       </div>
       <div style="display:flex;flex-direction:column;gap:14px">
-        <p style="margin:0;font-size:12px;letter-spacing:0.2em;font-weight:600;color:#fff">LEGAL</p>
-        <a href="terminos.html" target="_blank" style="color:#bbb;text-decoration:none;font-size:13px" style-hover="color:#fff">Términos y condiciones</a>
-        <a href="privacidad.html" target="_blank" style="color:#bbb;text-decoration:none;font-size:13px" style-hover="color:#fff">Políticas y Privacidad</a>
-        <button onClick="{{ reopenCookies }}" style="background:none;border:none;padding:0;text-align:left;color:#bbb;font-size:13px;font-family:inherit;cursor:pointer" style-hover="color:#fff">Configuración de cookies</button>
-        <a href="libro-reclamaciones.html" style="display:inline-flex;align-items:center;gap:10px;color:#bbb;text-decoration:none;font-size:13px;margin-top:4px" style-hover="color:#fff">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:26px;border:1px solid #555;border-radius:3px;font-size:14px">📖</span>
+        <p style="margin:0;font-size:12px;letter-spacing:0.2em;font-weight:600;color:#0a0a0a">LEGAL</p>
+        <a href="terminos.html" target="_blank" style="color:#555;text-decoration:none;font-size:13px" style-hover="color:#0a0a0a">Términos y condiciones</a>
+        <a href="privacidad.html" target="_blank" style="color:#555;text-decoration:none;font-size:13px" style-hover="color:#0a0a0a">Políticas y Privacidad</a>
+        <button onClick="{{ reopenCookies }}" style="background:none;border:none;padding:0;text-align:left;color:#555;font-size:13px;font-family:inherit;cursor:pointer" style-hover="color:#0a0a0a">Configuración de cookies</button>
+        <a href="libro-reclamaciones.html" style="display:inline-flex;align-items:center;gap:10px;color:#555;text-decoration:none;font-size:13px;margin-top:4px" style-hover="color:#0a0a0a">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:26px;border:1px solid #c9c7c2;border-radius:3px;font-size:14px">📖</span>
           Libro de Reclamaciones
         </a>
       </div>
       <div style="display:flex;flex-direction:column;gap:14px">
-        <p style="margin:0;font-size:12px;letter-spacing:0.2em;font-weight:600;color:#fff">MÉTODOS DE PAGO</p>
-        <span style="color:#bbb;font-size:13px">Yape</span>
-        <span style="color:#bbb;font-size:13px">Transferencia</span>
-        <span style="color:#bbb;font-size:13px">Mercado Pago</span>
+        <p style="margin:0;font-size:12px;letter-spacing:0.2em;font-weight:600;color:#0a0a0a">MÉTODOS DE PAGO</p>
+        <span style="color:#555;font-size:13px">Izipay</span>
       </div>
       <div style="display:flex;flex-direction:column;gap:14px">
-        <p style="margin:0;font-size:12px;letter-spacing:0.2em;font-weight:600;color:#fff">CONTÁCTANOS</p>
-        <a href="tel:+51913796342" style="color:#bbb;text-decoration:none;font-size:13px" style-hover="color:#fff">+51 913 796 342</a>
-        <a href="mailto:infononamiranda@gmail.com" style="color:#bbb;text-decoration:none;font-size:13px" style-hover="color:#fff">infononamiranda@gmail.com</a>
+        <p style="margin:0;font-size:12px;letter-spacing:0.2em;font-weight:600;color:#0a0a0a">CONTÁCTANOS</p>
+        <a href="tel:+51913796342" style="color:#555;text-decoration:none;font-size:13px" style-hover="color:#0a0a0a">+51 913 796 342</a>
+        <a href="mailto:infononamiranda@gmail.com" style="color:#555;text-decoration:none;font-size:13px" style-hover="color:#0a0a0a">infononamiranda@gmail.com</a>
       </div>
     </div>
-    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;border-top:1px solid #333;padding-top:22px;font-size:11px;letter-spacing:0.14em;color:#999">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;border-top:1px solid #e2e0db;padding-top:22px;font-size:11px;letter-spacing:0.14em;color:#777">
       <span>© 2026 NONA MIRANDA. TODOS LOS DERECHOS RESERVADOS.</span>
       <div style="display:flex;gap:22px">
-        <a href="#inicio" style="color:#999;text-decoration:none" style-hover="color:#fff">INICIO</a>
-        <a href="#nosotros" style="color:#999;text-decoration:none" style-hover="color:#fff">NOSOTROS</a>
-        <a href="#corporativas" style="color:#999;text-decoration:none" style-hover="color:#fff">CORPORATIVAS</a>
-        <a href="#contacto" style="color:#999;text-decoration:none" style-hover="color:#fff">CONTACTO</a>
+        <a href="#inicio" style="color:#777;text-decoration:none" style-hover="color:#0a0a0a">INICIO</a>
+        <a href="#nosotros" style="color:#777;text-decoration:none" style-hover="color:#0a0a0a">NOSOTROS</a>
+        <a href="#corporativas" style="color:#777;text-decoration:none" style-hover="color:#0a0a0a">CORPORATIVAS</a>
+        <a href="#contacto" style="color:#777;text-decoration:none" style-hover="color:#0a0a0a">CONTACTO</a>
       </div>
     </div>
   </div>
@@ -926,6 +906,7 @@ class Component extends DCLogic {
     productIndex: null, // índice del producto abierto
     mainPhoto: 0, // qué foto (0-3) se muestra grande
     cart: [], cartOpen: false, added: false, qty: 1, menuOpen: false,
+    newsEmail: '', newsSent: false, newsError: '',
     selColor: 0, fav: false, accOpen: {}, lightbox: false,
     nameOverrides: (() => { try { return JSON.parse(localStorage.getItem('nm-name-overrides') || '{}'); } catch (e) { return {}; } })(),
     cookieChoice: (() => { try { return localStorage.getItem('nm-cookies') || ''; } catch (e) { return ''; } })(),
@@ -934,7 +915,7 @@ class Component extends DCLogic {
     corpCompany: '', corpName: '', corpRuc: '', corpPhone: '', corpQty: '', corpDetail: '', corpSent: false, corpError: '',
     corp: false,
     checkout: false,
-    coName: '', coPhone: '', coDni: '', coAgency: '', coCourier: 'Shalom', coPay: 'Yape', coError: '',
+    coName: '', coPhone: '', coDni: '', coAgency: '', coCourier: 'Shalom', coPay: 'Izipay', coError: '',
     coDoc: 'Boleta', coRuc: '', coRazon: '',
     voucherUrl: '', voucherName: '', voucherFile: null,
     orderDone: false, orderNum: '', orderMsg: '',
@@ -1533,23 +1514,7 @@ class Component extends DCLogic {
       shalomColor: s.coCourier === 'Shalom' ? '#fff' : '#0a0a0a',
       olvaBg: s.coCourier === 'Olva' ? '#0a0a0a' : 'transparent',
       olvaColor: s.coCourier === 'Olva' ? '#fff' : '#0a0a0a',
-      pickYape: () => this.setState({ coPay: 'Yape' }),
-      pickTransfer: () => this.setState({ coPay: 'Transferencia' }),
-      pickMP: () => this.setState({ coPay: 'Mercado Pago' }),
-      pickIzipay: () => this.setState({ coPay: 'Tarjeta (Izipay)' }),
-      izipayBg: s.coPay === 'Tarjeta (Izipay)' ? '#0a0a0a' : 'transparent',
-      izipayColor: s.coPay === 'Tarjeta (Izipay)' ? '#fff' : '#0a0a0a',
-      payIsIzipay: s.coPay === 'Tarjeta (Izipay)',
-      yapeBg: s.coPay === 'Yape' ? '#0a0a0a' : 'transparent',
-      yapeColor: s.coPay === 'Yape' ? '#fff' : '#0a0a0a',
-      transferBg: s.coPay === 'Transferencia' ? '#0a0a0a' : 'transparent',
-      transferColor: s.coPay === 'Transferencia' ? '#fff' : '#0a0a0a',
-      mpBg: s.coPay === 'Mercado Pago' ? '#0a0a0a' : 'transparent',
-      mpColor: s.coPay === 'Mercado Pago' ? '#fff' : '#0a0a0a',
-      payIsMP: s.coPay === 'Mercado Pago',
-      payIsManual: s.coPay !== 'Mercado Pago',
-      payIsYape: s.coPay === 'Yape',
-      payIsTransfer: s.coPay === 'Transferencia',
+      payIsIzipay: true,
       voucherUrl: s.voucherUrl,
       voucherName: s.voucherName,
       voucherImgRef: (el) => { if (el && s.voucherUrl) el.src = s.voucherUrl; },
@@ -1576,7 +1541,7 @@ class Component extends DCLogic {
         if (!s.coDate) { this.setState({ coError: 'Elige tu fecha de entrega en el calendario.' }); return; }
         const t = this.totalsVals()._totals;
         const cal = this.calendarVals();
-        const pagoTexto = s.coPay === 'Tarjeta (Izipay)' ? 'Tarjeta Izipay - Pendiente de envio de link' : s.coPay;
+        const pagoTexto = 'Izipay - Pendiente de envio de link';
         const lines = s.cart.map((it) => '• ' + it.name + ' x' + it.qty + (it.priceNum != null ? ' — S/ ' + it.priceNum * it.qty : ''));
         const msg = 'Hola Nona Miranda, quiero confirmar mi pedido:\n' + lines.join('\n') +
           '\nSubtotal: S/ ' + t.subtotal +
@@ -1667,11 +1632,46 @@ class Component extends DCLogic {
         } catch (err) {}
         this.setState({ orderDone: true, orderNum: num, orderMsg: msg, coError: '' });
       },
+      // boletín
+      newsEmail: s.newsEmail,
+      newsError: s.newsError,
+      newsSent: s.newsSent,
+      newsNotSent: !s.newsSent,
+      setNewsEmail: (e) => this.setState({ newsEmail: e.target.value, newsError: '' }),
+      newsSubmit: () => {
+        const mail = (s.newsEmail || '').trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { this.setState({ newsError: 'Escribe un correo válido.' }); return; }
+        try {
+          const sheetUrl = 'https://script.google.com/macros/s/AKfycbyKnaU1BQab6SH03WGMAnxPM4QXsYYZRSF3iRwaUeGIjzcWkTlHHOUexqF0itrQwhW_/exec';
+          let fr = document.getElementById('nm-sheet-frame');
+          if (!fr) {
+            fr = document.createElement('iframe');
+            fr.id = 'nm-sheet-frame';
+            fr.name = 'nm-sheet-frame';
+            fr.style.display = 'none';
+            document.body.appendChild(fr);
+          }
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = sheetUrl;
+          form.target = 'nm-sheet-frame';
+          form.style.display = 'none';
+          const inp = document.createElement('input');
+          inp.type = 'hidden';
+          inp.name = 'data';
+          inp.value = JSON.stringify({ tipo: 'suscriptor', correo: mail });
+          form.appendChild(inp);
+          document.body.appendChild(form);
+          form.submit();
+          setTimeout(() => { try { form.remove(); } catch (e2) {} }, 4000);
+        } catch (err) {}
+        this.setState({ newsSent: true, newsError: '', newsEmail: '' });
+      },
       orderDone: s.orderDone,
       orderNum: s.orderNum,
       orderWaLink: 'https://wa.me/51913796342?text=' + encodeURIComponent(s.orderMsg || ''),
       orderIsMP: s.coPay === 'Mercado Pago',
-      orderIsIzipay: s.coPay === 'Tarjeta (Izipay)',
+      orderIsIzipay: true,
       orderMPLink: this.props.mercadoPagoLink ?? 'https://link.mercadopago.com.pe/nonamiranda',
       closeOrderDone: () => this.setState({ orderDone: false, cart: [], cartOpen: false, checkout: false, view: null }),
       // aviso de cookies
