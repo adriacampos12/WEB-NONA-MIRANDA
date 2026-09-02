@@ -1790,19 +1790,28 @@ class Component extends DCLogic {
       css.rel = 'stylesheet';
       css.href = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/ext/classic-reset.css';
       document.head.appendChild(css);
-      var s = document.createElement('script');
-      s.src = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/ext/classic.js';
-      s.setAttribute('kr-public-key', publicKey);
-      s.onload = function () {
+      var core = document.createElement('script');
+      core.src = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js';
+      core.setAttribute('kr-public-key', publicKey);
+      core.onerror = function () { reject(new Error('No se pudo cargar el formulario de pago.')); };
+      core.onload = function () {
+        var s = document.createElement('script');
+        s.src = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/ext/classic.js';
+        s.setAttribute('kr-public-key', publicKey);
+        s.onload = startPolling;
+        s.onerror = function () { reject(new Error('No se pudo cargar el formulario de pago.')); };
+        document.head.appendChild(s);
+      };
+      document.head.appendChild(core);
+
+      function startPolling() {
         var tries = 0;
         var poll = setInterval(function () {
           tries++;
           if (window.KR) { clearInterval(poll); resolve(window.KR); }
           else if (tries > 100) { clearInterval(poll); reject(new Error('El formulario de pago tardó demasiado en cargar.')); }
         }, 50);
-      };
-      s.onerror = function () { reject(new Error('No se pudo cargar el formulario de pago.')); };
-      document.head.appendChild(s);
+      }
     });
   }
 
