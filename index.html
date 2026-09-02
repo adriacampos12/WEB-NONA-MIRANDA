@@ -1853,7 +1853,6 @@ class Component extends DCLogic {
               .then(function (r2) { return r2.json(); })
               .then(function (conf) {
                 window.__nmLastConf = conf;
-                console.log('[izipay] confirmarPago:', JSON.stringify(conf));
                 loading.style.display = 'none';
                 if (conf.ok && conf.pagado) {
                   overlay.style.display = 'none';
