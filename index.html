@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preload" as="style" href="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/ext/classic-reset.css">
+<link rel="preload" as="script" href="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js">
+<link rel="preload" as="script" href="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/ext/classic.js">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -363,7 +366,6 @@ image-slot{position:absolute;inset:0;width:100%;height:100%;display:block;transi
             <p style="margin:0;font-size:12.5px;line-height:1.5;color:#555">Tarjeta, Yape o Plin.</p>
           </div>
         </div>
-        <p style="margin:0;font-size:13px;line-height:1.6;color:#555">Al confirmar, te enviaremos por WhatsApp el link de pago de Izipay.</p>
         <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#f6f5f2;border:1px solid #eaeaea">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
           <p style="margin:0;font-size:12px;line-height:1.5;color:#555">Pago 100% seguro. Nunca te pediremos los datos de tu tarjeta: el pago se procesa directo en Izipay (certificado PCI).</p>
@@ -372,7 +374,6 @@ image-slot{position:absolute;inset:0;width:100%;height:100%;display:block;transi
           <p style="margin:0;font-size:13px;color:#b3261e">{{ coError }}</p>
         </sc-if>
         <button onClick="{{ confirmOrder }}" style="background:#0a0a0a;color:#fff;border:none;font-family:'Proxima Nova',sans-serif;font-size:13px;letter-spacing:0.18em;font-weight:600;padding:18px;cursor:pointer;transition:background 0.2s" style-hover="background:#3b3b3b">CONFIRMAR PEDIDO →</button>
-        <p style="margin:0;font-size:12px;color:#999;line-height:1.5">Al confirmar registramos tu pedido y te mostramos el enlace a WhatsApp (+51 913 796 342) para coordinar el pago. Se envía apenas lo registremos. Envíos: martes, jueves y sábados.</p>
       </div>
 
       <!-- Resumen -->
