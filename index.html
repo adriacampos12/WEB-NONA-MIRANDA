@@ -1595,102 +1595,49 @@ class Component extends DCLogic {
           '\nEntrega: ' + (s.coDelivery === 'Motorizado' ? 'Motorizado — ' + s.coAddress : 'Agencia ' + s.coCourier + ' — ' + s.coAgency + ' (Clave: ' + s.coKey + ')') +
           '\nFecha de entrega: ' + cal.coDateLabel +
           '\nPago: ' + pagoTexto;
-        if (this._pidiendoNumero) return;
-        this._pidiendoNumero = true;
-        const continuar = (num) => {
-        // registro del pedido en la hoja de cálculo de Google Drive
-        try {
-          const sheetUrl = 'https://script.google.com/macros/s/AKfycbyKnaU1BQab6SH03WGMAnxPM4QXsYYZRSF3iRwaUeGIjzcWkTlHHOUexqF0itrQwhW_/exec';
-          const sheetData = {
-              numero: num,
-              nombre: s.coName,
-              telefono: s.coPhone,
-              correo: s.coEmail.trim(),
-              dni: s.coDni,
-              productos: s.cart.map((it) => it.name + ' x' + it.qty).join(' | '),
-              subtotal: t.subtotal,
-              envio: t.shipping === 0 ? 'GRATIS' : t.shipping,
-              total: t.total,
-              entrega: s.coDelivery,
-              courier: s.coDelivery === 'Agencia' ? s.coCourier : '',
-              direccion: s.coDelivery === 'Motorizado' ? s.coAddress : s.coAgency + ' (Clave: ' + s.coKey + ')',
-              departamento: s.coDept,
-              provincia: s.coProv,
-              distrito: s.coDist,
-              fechaEntrega: cal.coDateLabel,
-              pago: pagoTexto,
-              comprobante: s.coDoc,
-              ruc: s.coDoc === 'Factura' ? s.coRuc : '',
-              razonSocial: s.coDoc === 'Factura' ? s.coRazon : '',
-              comprobanteImagen: '',
-              comprobanteImagenNombre: '',
-              productosJson: JSON.stringify(s.cart.map((it) => ({ id: it.slotId, cantidad: it.qty })))
-          };
-          // envío por formulario oculto: no depende de CORS ni de permisos de lectura
-          const enviarHoja = (datos) => {
-            let fr = document.getElementById('nm-sheet-frame');
-            if (!fr) {
-              fr = document.createElement('iframe');
-              fr.id = 'nm-sheet-frame';
-              fr.name = 'nm-sheet-frame';
-              fr.style.display = 'none';
-              document.body.appendChild(fr);
-            }
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = sheetUrl;
-            form.target = 'nm-sheet-frame';
-            form.style.display = 'none';
-            const inp = document.createElement('input');
-            inp.type = 'hidden';
-            inp.name = 'data';
-            inp.value = JSON.stringify(datos);
-            form.appendChild(inp);
-            document.body.appendChild(form);
-            form.submit();
-            setTimeout(() => { try { form.remove(); } catch (e2) {} }, 4000);
-          };
-          const vf = s.voucherFile;
-          if (vf) {
-            const reader = new FileReader();
-            reader.onload = () => {
-              const res = String(reader.result || '');
-              const coma = res.indexOf(',');
-              sheetData.comprobanteImagen = coma >= 0 ? res.slice(coma + 1) : res;
-              sheetData.comprobanteImagenNombre = vf.name || 'comprobante.jpg';
-              enviarHoja(sheetData);
-            };
-            reader.onerror = () => enviarHoja(sheetData);
-            reader.readAsDataURL(vf);
-          } else {
-            enviarHoja(sheetData);
-          }
-        } catch (err) {}
-        // copia del pedido al correo de la tienda (requiere activar FormSubmit con el primer pedido)
-        try {
-          const fd = new FormData();
-          fd.append('_subject', 'NUEVO PEDIDO — ' + s.coName);
-          fd.append('pedido', msg);
-          fetch('https://formsubmit.co/ajax/infononamiranda@gmail.com', { method: 'POST', body: fd }).catch(() => {});
-        } catch (err) {}
-        this.setState({ coError: '' });
-        if (window.__nmIzipay) {
-          window.__nmIzipay.open(Number(t.total), num, () => {
-            this.setState({ orderDone: true, orderNum: num, orderMsg: msg, coError: '' });
-          });
-        } else {
-          this.setState({ orderDone: true, orderNum: num, orderMsg: msg, coError: '' });
-        }
-        };
-        // número de pedido consecutivo (lo entrega el servidor); si falla, se usa uno de respaldo para no bloquear el pago
-        const respaldo = () => 'NM-' + String(Date.now()).slice(-6);
-        const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-        const timer = setTimeout(() => { if (ctrl) ctrl.abort(); }, 8000);
-        fetch('https://script.google.com/macros/s/AKfycbyKnaU1BQab6SH03WGMAnxPM4QXsYYZRSF3iRwaUeGIjzcWkTlHHOUexqF0itrQwhW_/exec', { method: 'POST', body: JSON.stringify({ accion: 'siguienteNumero' }), signal: ctrl ? ctrl.signal : undefined })
+        if (this._enviandoPedido) return;
+        this._enviandoPedido = true;
+        // el servidor registra el pedido, asigna el número (NM-…) y calcula el total con los precios oficiales
+        fetch('/api/pedido', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nombre: s.coName,
+            telefono: s.coPhone,
+            correo: s.coEmail.trim(),
+            dni: s.coDni,
+            items: s.cart.map((it) => ({ id: it.slotId, nombre: it.name, cantidad: it.qty })),
+            cupon: s.couponApplied ? s.couponApplied.code : '',
+            entrega: s.coDelivery,
+            courier: s.coDelivery === 'Agencia' ? s.coCourier : '',
+            direccion: s.coDelivery === 'Motorizado' ? s.coAddress : s.coAgency + ' (Clave: ' + s.coKey + ')',
+            departamento: s.coDept,
+            provincia: s.coProv,
+            distrito: s.coDist,
+            fechaEntrega: cal.coDateLabel,
+            comprobante: s.coDoc,
+            ruc: s.coDoc === 'Factura' ? s.coRuc : '',
+            razonSocial: s.coDoc === 'Factura' ? s.coRazon : '',
+          }),
+        })
           .then((r) => r.json())
-          .then((res) => (res && res.ok && /^NM-\d+$/.test(res.numero || '') ? res.numero : respaldo()))
-          .catch(() => respaldo())
-          .then((n) => { clearTimeout(timer); this._pidiendoNumero = false; continuar(n); });
+          .then((res) => {
+            this._enviandoPedido = false;
+            if (!res || !res.ok || !res.numero) throw new Error((res && res.error) || 'sin numero');
+            const num = res.numero;
+            this.setState({ coError: '' });
+            if (window.__nmIzipay) {
+              window.__nmIzipay.open(Number(res.total), num, () => {
+                this.setState({ orderDone: true, orderNum: num, orderMsg: msg, coError: '' });
+              });
+            } else {
+              this.setState({ orderDone: true, orderNum: num, orderMsg: msg, coError: '' });
+            }
+          })
+          .catch(() => {
+            this._enviandoPedido = false;
+            this.setState({ coError: 'No pudimos registrar tu pedido. Inténtalo de nuevo o escríbenos por WhatsApp al +51 913 796 342.' });
+          });
       },
       // boletín
       newsEmail: s.newsEmail,
@@ -1701,31 +1648,13 @@ class Component extends DCLogic {
       newsSubmit: () => {
         const mail = (s.newsEmail || '').trim();
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { this.setState({ newsError: 'Escribe un correo válido.' }); return; }
-        try {
-          const sheetUrl = 'https://script.google.com/macros/s/AKfycbyKnaU1BQab6SH03WGMAnxPM4QXsYYZRSF3iRwaUeGIjzcWkTlHHOUexqF0itrQwhW_/exec';
-          let fr = document.getElementById('nm-sheet-frame');
-          if (!fr) {
-            fr = document.createElement('iframe');
-            fr.id = 'nm-sheet-frame';
-            fr.name = 'nm-sheet-frame';
-            fr.style.display = 'none';
-            document.body.appendChild(fr);
-          }
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = sheetUrl;
-          form.target = 'nm-sheet-frame';
-          form.style.display = 'none';
-          const inp = document.createElement('input');
-          inp.type = 'hidden';
-          inp.name = 'data';
-          inp.value = JSON.stringify({ tipo: 'suscriptor', correo: mail });
-          form.appendChild(inp);
-          document.body.appendChild(form);
-          form.submit();
-          setTimeout(() => { try { form.remove(); } catch (e2) {} }, 4000);
-        } catch (err) {}
-        this.setState({ newsSent: true, newsError: '', newsEmail: '' });
+        fetch('/api/boletin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ correo: mail }) })
+          .then((r) => r.json())
+          .then((res) => {
+            if (res && res.ok) this.setState({ newsSent: true, newsError: '', newsEmail: '' });
+            else this.setState({ newsError: 'No pudimos registrar tu correo. Inténtalo de nuevo.' });
+          })
+          .catch(() => this.setState({ newsError: 'No pudimos registrar tu correo. Inténtalo de nuevo.' }));
       },
       orderDone: s.orderDone,
       orderNum: s.orderNum,
@@ -1833,7 +1762,6 @@ class Component extends DCLogic {
 </div>
 <script>
 (function () {
-  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyKnaU1BQab6SH03WGMAnxPM4QXsYYZRSF3iRwaUeGIjzcWkTlHHOUexqF0itrQwhW_/exec';
 
   function loadClassicJs(publicKey) {
     return new Promise(function (resolve, reject) {
@@ -1885,7 +1813,7 @@ class Component extends DCLogic {
     loading.style.display = 'block';
     overlay.style.display = 'flex';
 
-    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ accion: 'crearPago', monto: monto, numeroPedido: numeroPedido }) })
+    fetch('/api/izipay-crear', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ numero: numeroPedido }) })
       .then(function (r) { return r.json(); })
       .then(function (res) {
         if (!res.ok) { throw new Error(res.error || 'No se pudo iniciar el pago.'); }
@@ -1900,7 +1828,7 @@ class Component extends DCLogic {
             loading.textContent = 'Verificando pago...';
             loading.style.display = 'block';
             errBox.style.display = 'none';
-            fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ accion: 'confirmarPago', krAnswer: paymentData.rawClientAnswer, krHash: paymentData.hash }) })
+            fetch('/api/izipay-confirmar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ krAnswer: paymentData.rawClientAnswer, krHash: paymentData.hash }) })
               .then(function (r2) { return r2.json(); })
               .then(function (conf) {
                 window.__nmLastConf = conf;
