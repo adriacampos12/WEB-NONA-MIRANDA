@@ -92,10 +92,28 @@ function textoTienda(p, coincide) {
   );
 }
 
+// Con RESEND_API_KEY los correos salen desde el dominio (pedidos@nonamiranda.pe); si no, por Gmail.
 function transporte() {
+  const resendKey = process.env.RESEND_API_KEY;
+  if (resendKey) {
+    const remitente = process.env.CORREO_REMITENTE || 'pedidos@nonamiranda.pe';
+    return {
+      user: remitente,
+      t: {
+        sendMail: async (m) => {
+          const r = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + resendKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ from: m.from, to: [m.to], reply_to: m.replyTo, subject: m.subject, html: m.html, text: m.text }),
+          });
+          if (!r.ok) throw new Error('Resend ' + r.status + ': ' + (await r.text()).slice(0, 200));
+        },
+      },
+    };
+  }
   const user = process.env.GMAIL_USER || TIENDA;
   const pass = process.env.GMAIL_APP_PASSWORD;
-  if (!pass) throw new Error('Falta GMAIL_APP_PASSWORD');
+  if (!pass) throw new Error('Falta configuracion de correo');
   return { user, t: nodemailer.createTransport({ service: 'gmail', auth: { user, pass } }) };
 }
 
