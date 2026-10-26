@@ -1595,7 +1595,9 @@ class Component extends DCLogic {
           '\nEntrega: ' + (s.coDelivery === 'Motorizado' ? 'Motorizado — ' + s.coAddress : 'Agencia ' + s.coCourier + ' — ' + s.coAgency + ' (Clave: ' + s.coKey + ')') +
           '\nFecha de entrega: ' + cal.coDateLabel +
           '\nPago: ' + pagoTexto;
-        const num = 'NM-' + String(Date.now()).slice(-6);
+        if (this._pidiendoNumero) return;
+        this._pidiendoNumero = true;
+        const continuar = (num) => {
         // registro del pedido en la hoja de cálculo de Google Drive
         try {
           const sheetUrl = 'https://script.google.com/macros/s/AKfycbyKnaU1BQab6SH03WGMAnxPM4QXsYYZRSF3iRwaUeGIjzcWkTlHHOUexqF0itrQwhW_/exec';
@@ -1679,6 +1681,16 @@ class Component extends DCLogic {
         } else {
           this.setState({ orderDone: true, orderNum: num, orderMsg: msg, coError: '' });
         }
+        };
+        // número de pedido consecutivo (lo entrega el servidor); si falla, se usa uno de respaldo para no bloquear el pago
+        const respaldo = () => 'NM-' + String(Date.now()).slice(-6);
+        const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timer = setTimeout(() => { if (ctrl) ctrl.abort(); }, 8000);
+        fetch('https://script.google.com/macros/s/AKfycbyKnaU1BQab6SH03WGMAnxPM4QXsYYZRSF3iRwaUeGIjzcWkTlHHOUexqF0itrQwhW_/exec', { method: 'POST', body: JSON.stringify({ accion: 'siguienteNumero' }), signal: ctrl ? ctrl.signal : undefined })
+          .then((r) => r.json())
+          .then((res) => (res && res.ok && /^NM-\d+$/.test(res.numero || '') ? res.numero : respaldo()))
+          .catch(() => respaldo())
+          .then((n) => { clearTimeout(timer); this._pidiendoNumero = false; continuar(n); });
       },
       // boletín
       newsEmail: s.newsEmail,
