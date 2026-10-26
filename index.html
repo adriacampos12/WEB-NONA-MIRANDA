@@ -289,6 +289,11 @@ image-slot{position:absolute;inset:0;width:100%;height:100%;display:block;transi
           <input value="{{ coPhone }}" onChange="{{ onCoPhone }}" placeholder="9XX XXX XXX" style="border:none;border-bottom:1px solid #0a0a0a;background:transparent;padding:10px 0;font-family:'Proxima Nova',sans-serif;font-size:15px;outline:none;color:#0a0a0a">
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">
+          <label style="font-size:11px;letter-spacing:0.2em;font-weight:600;color:#555">CORREO ELECTRÓNICO</label>
+          <input type="email" value="{{ coEmail }}" onChange="{{ onCoEmail }}" placeholder="tucorreo@ejemplo.com" style="border:none;border-bottom:1px solid #0a0a0a;background:transparent;padding:10px 0;font-family:'Proxima Nova',sans-serif;font-size:15px;outline:none;color:#0a0a0a">
+          <span style="font-size:11px;color:#777">Te enviaremos la confirmación de tu pedido y tu código de seguimiento.</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
           <label style="font-size:11px;letter-spacing:0.2em;font-weight:600;color:#555">DNI (PARA RECOJO)</label>
           <input value="{{ coDni }}" onChange="{{ onCoDni }}" placeholder="Tu DNI" style="border:none;border-bottom:1px solid #0a0a0a;background:transparent;padding:10px 0;font-family:'Proxima Nova',sans-serif;font-size:15px;outline:none;color:#0a0a0a">
         </div>
@@ -944,7 +949,7 @@ class Component extends DCLogic {
     corpCompany: '', corpName: '', corpRuc: '', corpPhone: '', corpQty: '', corpDetail: '', corpSent: false, corpError: '',
     corp: false,
     checkout: false,
-    coName: '', coPhone: '', coDni: '', coAgency: '', coCourier: 'Shalom', coPay: 'Izipay', coError: '',
+    coName: '', coPhone: '', coEmail: '', coDni: '', coAgency: '', coCourier: 'Shalom', coPay: 'Izipay', coError: '',
     coDoc: 'Boleta', coRuc: '', coRazon: '',
     voucherUrl: '', voucherName: '', voucherFile: null,
     orderDone: false, orderNum: '', orderMsg: '',
@@ -1492,11 +1497,12 @@ class Component extends DCLogic {
       isCheckout: s.checkout,
       goCheckout: () => { this.setState({ checkout: true, cartOpen: false, view: null, productIndex: null, coError: '' }); window.scrollTo(0, 0); },
       backFromCheckout: () => { this.setState({ checkout: false }); window.scrollTo(0, 0); },
-      coName: s.coName, coPhone: s.coPhone, coDni: s.coDni, coAgency: s.coAgency, coError: s.coError,
+      coName: s.coName, coPhone: s.coPhone, coEmail: s.coEmail, coDni: s.coDni, coAgency: s.coAgency, coError: s.coError,
       coRuc: s.coRuc, coRazon: s.coRazon, coDept: s.coDept, coProv: s.coProv, coDist: s.coDist,
       coAddress: s.coAddress, coKey: s.coKey, coupon: s.coupon,
       onCoName: (e) => this.setState({ coName: e.target.value, coError: '' }),
       onCoPhone: (e) => this.setState({ coPhone: e.target.value, coError: '' }),
+      onCoEmail: (e) => this.setState({ coEmail: e.target.value, coError: '' }),
       onCoDni: (e) => this.setState({ coDni: e.target.value, coError: '' }),
       onCoAgency: (e) => this.setState({ coAgency: e.target.value, coError: '' }),
       onCoRuc: (e) => this.setState({ coRuc: e.target.value, coError: '' }),
@@ -1563,6 +1569,7 @@ class Component extends DCLogic {
       confirmOrder: () => {
         if (!s.coName.trim()) { this.setState({ coError: 'Escribe tus nombres y apellidos.' }); return; }
         if (!/\d{9}/.test(s.coPhone.replace(/\D/g, ''))) { this.setState({ coError: 'Escribe un teléfono válido (9 dígitos).' }); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((s.coEmail || '').trim())) { this.setState({ coError: 'Escribe un correo válido para enviarte la confirmación.' }); return; }
         if (!s.coDni.trim()) { this.setState({ coError: 'Escribe tu DNI.' }); return; }
         if (s.coDoc === 'Factura' && !s.coRuc.trim()) { this.setState({ coError: 'Para factura, escribe tu RUC.' }); return; }
         if (!s.coDept.trim() || !s.coProv.trim() || !s.coDist.trim()) { this.setState({ coError: 'Completa departamento, provincia y distrito.' }); return; }
@@ -1581,6 +1588,7 @@ class Component extends DCLogic {
           '\nTOTAL: S/ ' + t.total +
           '\n\nNombre: ' + s.coName +
           '\nTeléfono: ' + s.coPhone +
+          '\nCorreo: ' + s.coEmail.trim() +
           '\nDNI: ' + s.coDni +
           '\nComprobante: ' + s.coDoc + (s.coDoc === 'Factura' ? ' (RUC ' + s.coRuc + (s.coRazon ? ' — ' + s.coRazon : '') + ')' : '') +
           '\nUbicación: PERÚ — ' + s.coDept + ' / ' + s.coProv + ' / ' + s.coDist +
@@ -1595,6 +1603,7 @@ class Component extends DCLogic {
               numero: num,
               nombre: s.coName,
               telefono: s.coPhone,
+              correo: s.coEmail.trim(),
               dni: s.coDni,
               productos: s.cart.map((it) => it.name + ' x' + it.qty).join(' | '),
               subtotal: t.subtotal,
