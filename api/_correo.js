@@ -139,3 +139,18 @@ async function avisarPago(pedido, coincide) {
 }
 
 module.exports = { avisarPago, htmlCliente };
+
+// Correo generico (contacto y reclamos). No lanza error: devuelve true/false para no bloquear el registro.
+async function enviarCorreo({ to, subject, text, replyTo, desde }) {
+  try {
+    const { user, t } = transporte();
+    await t.sendMail({ from: (desde || 'Web Nona Miranda') + ' <' + user + '>', to, replyTo, subject, text });
+    return true;
+  } catch (e) {
+    console.error('correo', e.message);
+    return false;
+  }
+}
+
+module.exports.enviarCorreo = enviarCorreo;
+module.exports.TIENDA = TIENDA;

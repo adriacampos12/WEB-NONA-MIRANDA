@@ -233,36 +233,37 @@ class Component extends DCLogic {
           return;
         }
         const d = new Date();
-        const no = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '-' + String(Date.now()).slice(-4);
-        const msg = 'LIBRO DE RECLAMACIONES — HOJA N.º ' + no +
-          '\nTipo: ' + s.tipo +
-          '\nFecha: ' + d.toLocaleDateString('es-PE') +
-          '\n\nCONSUMIDOR' +
-          '\nNombre: ' + s.fName +
-          '\nDNI/CE: ' + s.fDni +
-          '\nTeléfono: ' + s.fPhone +
-          '\nCorreo: ' + s.fEmail +
-          '\nDomicilio: ' + s.fAddress +
-          (s.isMinor ? '\nMenor de edad — Apoderado: ' + s.fGuardian + ' (DNI ' + s.fGuardianDni + ')' : '') +
-          '\n\nBIEN CONTRATADO: ' + s.bien +
-          (s.fProduct ? '\nDescripción: ' + s.fProduct : '') +
-          (s.fAmount ? '\nMonto reclamado: S/ ' + s.fAmount : '') +
-          '\nHechos: ' + s.fDetail +
-          '\nPedido del consumidor: ' + s.fRequest;
-        // envío al correo del negocio vía FormSubmit (funciona en el sitio publicado)
-        fetch('https://formsubmit.co/ajax/infononamiranda@gmail.com', {
+        // el servidor registra el reclamo, le asigna el número de hoja y envía el correo a la tienda y una copia al consumidor
+        if (this._enviandoReclamo) return;
+        this._enviandoReclamo = true;
+        fetch('/api/reclamo', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            _subject: 'Libro de Reclamaciones — Hoja N.º ' + no + ' (' + s.tipo + ')',
-            mensaje: msg,
-            correo_del_consumidor: s.fEmail,
+            tipo: s.tipo,
+            nombre: s.fName,
+            dni: s.fDni,
+            telefono: s.fPhone,
+            correo: s.fEmail,
+            domicilio: s.fAddress,
+            apoderado: s.isMinor ? s.fGuardian + ' (DNI ' + s.fGuardianDni + ')' : '',
+            bien: s.bien,
+            descripcion: s.fProduct,
+            monto: s.fAmount,
+            hechos: s.fDetail,
+            pedidoConsumidor: s.fRequest,
           }),
-        }).catch(() => {
-          // respaldo: abre el correo del dispositivo con la hoja lista para enviar
-          window.location.href = 'mailto:infononamiranda@gmail.com?subject=' + encodeURIComponent('Libro de Reclamaciones — Hoja N.º ' + no) + '&body=' + encodeURIComponent(msg);
-        });
-        this.setState({ sent: true, recordNo: no, sentTipo: s.tipo, error: '' });
+        })
+          .then((r) => r.json())
+          .then((res) => {
+            this._enviandoReclamo = false;
+            if (!res || !res.ok || !res.hoja) throw new Error('sin hoja');
+            this.setState({ sent: true, recordNo: res.hoja, sentTipo: s.tipo, error: '' });
+          })
+          .catch(() => {
+            this._enviandoReclamo = false;
+            this.setState({ error: 'No pudimos registrar tu hoja. Inténtalo de nuevo o escríbenos a infononamiranda@gmail.com o por WhatsApp al +51 913 796 342.' });
+          });
       },
     };
   }

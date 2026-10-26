@@ -1733,7 +1733,13 @@ class Component extends DCLogic {
       submitForm: () => {
         if (!s.name.trim() || !s.msg.trim()) { this.setState({ error: 'Por favor completa tu nombre y mensaje.' }); return; }
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email)) { this.setState({ error: 'Ingresa un correo válido.' }); return; }
-        this.setState({ sent: true, error: '' });
+        fetch('/api/contacto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre: s.name, correo: s.email, mensaje: s.msg }) })
+          .then((r) => r.json())
+          .then((res) => {
+            if (res && res.ok) this.setState({ sent: true, error: '' });
+            else this.setState({ error: 'No pudimos enviar tu mensaje. Inténtalo de nuevo o escríbenos por WhatsApp.' });
+          })
+          .catch(() => this.setState({ error: 'No pudimos enviar tu mensaje. Inténtalo de nuevo o escríbenos por WhatsApp.' }));
       },
       resetForm: () => this.setState({ sent: false, name: '', email: '', msg: '' }),
       // newsletter
