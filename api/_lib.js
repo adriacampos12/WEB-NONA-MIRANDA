@@ -82,14 +82,23 @@ async function marcarPagado(numero, centavos, origen, payload) {
   const esperado = Math.round(Number(pedido.total) * 100);
   const coincide = centavos === null || centavos === undefined || Math.abs(Number(centavos) - esperado) <= 1;
   if (pedido.estado_pago !== 'pagado') {
-    await sb(filtro, {
+    // el filtro por estado hace que solo una confirmación (IPN o navegador) actualice y envíe los correos
+    const actualizados = await sb(filtro + '&estado_pago=neq.pagado', {
       method: 'PATCH',
+      prefer: 'return=representation',
       body: {
         estado_pago: coincide ? 'pagado' : 'monto_no_coincide',
         pagado_en: new Date().toISOString(),
         monto_pagado: centavos === null || centavos === undefined ? null : Number(centavos) / 100,
       },
     });
+    if (actualizados && actualizados.length && (coincide || pedido.estado_pago !== 'monto_no_coincide')) {
+      try {
+        await require('./_correo').avisarPago(actualizados[0], coincide);
+      } catch (e) {
+        console.error('correo', e.message);
+      }
+    }
   }
   return { encontrado: true, coincide };
 }
