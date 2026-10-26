@@ -5,7 +5,7 @@ const PRECIOS = {
   'p-billeteras-1': 30,
   'p-billeteras-2': 30,
   'p-billeteras-3': 30,
-  'p-billeteras-4': 1,
+  'p-billeteras-4': 30,
   'p-billeteras-5': 30,
 };
 

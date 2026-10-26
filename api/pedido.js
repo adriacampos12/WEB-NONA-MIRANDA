@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
     }
     const pct = CUPONES[txt(d.cupon, 30).toUpperCase()] || 0;
     const descuento = Math.round(subtotal * pct) / 100;
-    const envio = subtotal >= 200 ? 0 : 1;
+    const envio = subtotal >= 200 ? 0 : 12;
     const total = subtotal - descuento + envio;
 
     const fila = {

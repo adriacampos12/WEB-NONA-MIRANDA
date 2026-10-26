@@ -1014,7 +1014,7 @@ class Component extends DCLogic {
     const s = this.state;
     const subtotal = s.cart.reduce((n, it) => n + (it.priceNum || 0) * it.qty, 0);
     const discount = s.couponApplied ? Math.round(subtotal * s.couponApplied.pct) / 100 : 0;
-    const shipping = subtotal >= 200 ? 0 : 1;
+    const shipping = subtotal >= 200 ? 0 : 12;
     const total = subtotal - discount + shipping;
     return {
       coSubtotal: 'S/ ' + subtotal,
@@ -1124,7 +1124,7 @@ class Component extends DCLogic {
       'p-billeteras-1': { name: 'Billetera Negra', price: 'S/ 30' },
       'p-billeteras-2': { name: 'Billetera Pie Pull', price: 'S/ 30' },
       'p-billeteras-3': { name: 'Billetera SIBIbOO', price: 'S/ 30' },
-      'p-billeteras-4': { name: 'Billetera Jade', price: 'S/ 1' },
+      'p-billeteras-4': { name: 'Billetera Jade', price: 'S/ 30' },
       'p-billeteras-5': { name: 'Billetera Saguitta', price: 'S/ 30' },
     };
     const soldOut = ['p-mochilas-1'];
@@ -1484,7 +1484,7 @@ class Component extends DCLogic {
           open: () => { this.setState({ view: 'bolsos', productIndex: 0, mainPhoto: 1, qty: 1, added: false }); window.scrollTo(0, 0); } },
         { name: 'Billetera Negra', price: 'S/ 30', previewId: 'p-billeteras-1-alt1', photoSrc: srcFor('p-billeteras-1-alt1'), placeholder: 'Foto de la billetera',
           open: () => { this.setState({ view: 'billeteras', productIndex: 0, mainPhoto: 1, qty: 1, added: false }); window.scrollTo(0, 0); } },
-        { name: 'Billetera Jade', price: 'S/ 1', previewId: 'p-billeteras-4-alt1', photoSrc: srcFor('p-billeteras-4-alt1'), placeholder: 'Foto de la billetera',
+        { name: 'Billetera Jade', price: 'S/ 30', previewId: 'p-billeteras-4-alt1', photoSrc: srcFor('p-billeteras-4-alt1'), placeholder: 'Foto de la billetera',
           open: () => { this.setState({ view: 'billeteras', productIndex: 3, mainPhoto: 1, qty: 1, added: false }); window.scrollTo(0, 0); } },
         { name: 'Billetera 02', price: 'S/ 30', previewId: 'p-billeteras-2-alt1', photoSrc: srcFor('p-billeteras-2-alt1'), placeholder: 'Foto de la billetera',
           open: () => { this.setState({ view: 'billeteras', productIndex: 1, mainPhoto: 1, qty: 1, added: false }); window.scrollTo(0, 0); } },
