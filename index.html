@@ -6,78 +6,12 @@
 <link rel="preload" as="style" href="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/ext/classic-reset.css">
 <link rel="preload" as="script" href="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js">
 <link rel="preload" as="script" href="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/ext/classic.js">
-<script>
-// Google Tag Manager (Analytics + Meta) solo se carga si el cliente acepta cookies en el aviso.
-window.dataLayer = window.dataLayer || [];
-function gtag() { dataLayer.push(arguments); }
-gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied', wait_for_update: 500 });
-window.__nmTrack = function () {
-  var c = '';
-  try { c = localStorage.getItem('nm-cookies') || ''; } catch (e) {}
-  var a = c !== 'none' && (c === 'all' || c.indexOf('a') >= 0);
-  var p = c !== 'none' && (c === 'all' || c.indexOf('p') >= 0);
-  gtag('consent', 'update', {
-    analytics_storage: a ? 'granted' : 'denied',
-    ad_storage: p ? 'granted' : 'denied',
-    ad_user_data: p ? 'granted' : 'denied',
-    ad_personalization: p ? 'granted' : 'denied'
-  });
-  if ((a || p) && !window.__nmGtm) {
-    window.__nmGtm = 1;
-    (function (w, d, s, l, i) {
-      w[l] = w[l] || [];
-      w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
-      var f = d.getElementsByTagName(s)[0], j = d.createElement(s);
-      j.async = true;
-      j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i;
-      f.parentNode.insertBefore(j, f);
-    })(window, document, 'script', 'dataLayer', 'GTM-5QP32GSR');
-  }
-  // Píxel de Meta: solo con consentimiento de cookies de publicidad
-  if (p && !window.__nmFb) {
-    window.__nmFb = 1;
-    !function (f, b, e, v, n, t, s) {
-      if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
-      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = [];
-      t = b.createElement(e); t.async = !0; t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
-    }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '457444570410053');
-    fbq('track', 'PageView');
-  }
-};
-window.__nmFbEvt = function (nombre, datos) { try { if (window.fbq) fbq('track', nombre, datos || {}); } catch (e) {} };
-window.__nmTrack();
-</script>
+<script src="/nm-track.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-3XGDF5B8JK"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-3XGDF5B8JK');
-</script>
-<!-- Meta Pixel Code -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '2278053896381760');
-fbq('track', 'PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=2278053896381760&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Meta Pixel Code -->
 <title>Nona Miranda Perú | Tienda Online Oficial</title>
 <link rel="canonical" href="https://www.nonamiranda.pe/">
 <meta name="description" content="Bienvenida a Nona Miranda. Descubre bolsos, billeteras y mochilas de diseño en pequeñas series. Envíos a todo el Perú y pago 100% seguro.">
@@ -1471,8 +1405,7 @@ class Component extends DCLogic {
         this.setState({ cart, added: true });
         try {
           const precio = (prod.price.match(/\d+/) ? parseInt(prod.price.match(/\d+/)[0], 10) : 0);
-          window.dataLayer.push({ event: 'add_to_cart', ecommerce: { currency: 'PEN', value: precio * s.qty, items: [{ item_id: prod.slotId, item_name: prod.name, price: precio, quantity: s.qty }] } });
-          window.__nmFbEvt('AddToCart', { value: precio * s.qty, currency: 'PEN', content_ids: [prod.slotId], content_name: prod.name, content_type: 'product' });
+          window.__nmEvt('add_to_cart', { currency: 'PEN', value: precio * s.qty, items: [{ item_id: prod.slotId, item_name: prod.name, price: precio, quantity: s.qty }] });
         } catch (e) {}
       },
       addedMsg: s.added,
@@ -1676,8 +1609,7 @@ class Component extends DCLogic {
             if (window.__nmIzipay) {
               window.__nmIzipay.open(Number(res.total), num, () => {
                 try {
-                  window.dataLayer.push({ event: 'purchase', ecommerce: { transaction_id: num, currency: 'PEN', value: Number(res.total), items: s.cart.map((it) => ({ item_id: it.slotId, item_name: it.name, price: it.priceNum, quantity: it.qty })) } });
-                  window.__nmFbEvt('Purchase', { value: Number(res.total), currency: 'PEN', content_ids: s.cart.map((it) => it.slotId), content_type: 'product', num_items: s.cart.reduce((n, it) => n + it.qty, 0) });
+                  window.__nmEvt('purchase', { transaction_id: num, currency: 'PEN', value: Number(res.total), items: s.cart.map((it) => ({ item_id: it.slotId, item_name: it.name, price: it.priceNum, quantity: it.qty })) });
                 } catch (e) {}
                 this.setState({ orderDone: true, orderNum: num, orderMsg: msg, coError: '' });
               });
