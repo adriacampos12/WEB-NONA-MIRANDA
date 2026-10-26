@@ -13,6 +13,19 @@ module.exports = async (req, res) => {
       return res.status(400).json({ ok: false, error: 'Datos incompletos' });
     }
 
+    // Límite contra pedidos falsos: se cuentan solo los pedidos SIN pagar creados hace poco.
+    const ip = txt((req.headers['x-forwarded-for'] || '').split(',')[0], 60);
+    const hace = (min) => encodeURIComponent(new Date(Date.now() - min * 60000).toISOString());
+    const sinPagar = 'pedidos?select=numero&estado_pago=neq.pagado&limit=100';
+    const [porCorreo, porIp, global] = await Promise.all([
+      sb(sinPagar + '&correo=eq.' + encodeURIComponent(correo) + '&creado_en=gte.' + hace(60)),
+      ip ? sb(sinPagar + '&ip=eq.' + encodeURIComponent(ip) + '&creado_en=gte.' + hace(60)) : [],
+      sb(sinPagar + '&creado_en=gte.' + hace(10)),
+    ]);
+    if (porCorreo.length >= 5 || porIp.length >= 10 || global.length >= 60) {
+      return res.status(429).json({ ok: false, error: 'Demasiados intentos. Espera unos minutos o escríbenos por WhatsApp.' });
+    }
+
     const items = Array.isArray(d.items) ? d.items : [];
     if (!items.length || items.length > 30) {
       return res.status(400).json({ ok: false, error: 'Carrito vacio' });
@@ -61,6 +74,7 @@ module.exports = async (req, res) => {
       comprobante: txt(d.comprobante, 10),
       ruc: txt(d.ruc, 20),
       razon_social: txt(d.razonSocial, 160),
+      ip,
     };
     const creado = await sb('pedidos', { method: 'POST', prefer: 'return=representation', body: fila });
     return res.status(200).json({ ok: true, numero: creado[0].numero, total: Number(creado[0].total) });

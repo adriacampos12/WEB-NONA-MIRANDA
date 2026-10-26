@@ -11,6 +11,15 @@ module.exports = async (req, res) => {
     if (!nombre || !mensaje || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
       return res.status(400).json({ ok: false, error: 'Datos incompletos' });
     }
+    // límite contra spam: máximo 5 mensajes por hora por correo y 100 por hora en total
+    const desde = encodeURIComponent(new Date(Date.now() - 3600000).toISOString());
+    const [propios, todos] = await Promise.all([
+      sb('mensajes_contacto?select=nombre&correo=eq.' + encodeURIComponent(correo) + '&creado_en=gte.' + desde + '&limit=10'),
+      sb('mensajes_contacto?select=nombre&creado_en=gte.' + desde + '&limit=100'),
+    ]);
+    if (propios.length >= 5 || todos.length >= 100) {
+      return res.status(429).json({ ok: false, error: 'Demasiados mensajes. Inténtalo más tarde.' });
+    }
     await sb('mensajes_contacto', { method: 'POST', body: { nombre, correo, mensaje } });
     await enviarCorreo({
       to: TIENDA,

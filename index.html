@@ -1637,7 +1637,8 @@ class Component extends DCLogic {
           .catch((err) => {
             this._enviandoPedido = false;
             const sinStock = err && /agotado|Solo quedan/.test(err.message || '');
-            this.setState({ coError: sinStock ? err.message + '. Quita el producto o reduce la cantidad para continuar.' : 'No pudimos registrar tu pedido. Inténtalo de nuevo o escríbenos por WhatsApp al +51 913 796 342.' });
+            const demasiados = err && /Demasiados intentos/.test(err.message || '');
+            this.setState({ coError: demasiados ? err.message : sinStock ? err.message + '. Quita el producto o reduce la cantidad para continuar.' : 'No pudimos registrar tu pedido. Inténtalo de nuevo o escríbenos por WhatsApp al +51 913 796 342.' });
           });
       },
       // boletín
