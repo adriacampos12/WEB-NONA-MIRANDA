@@ -15,5 +15,6 @@ module.exports = async (req, res) => {
   } catch (e) {
     supabase = 'error: ' + e.message;
   }
-  res.status(200).json({ vars, urlEmpiezaCon: env('SUPABASE_URL').slice(0, 30), formatoClave: env('SUPABASE_SERVICE_ROLE_KEY').slice(0, 7), supabase });
+  const otros = Object.keys(process.env).filter((k) => /IZIPAY|CONTADOR|SUPABASE|PRUEBA|HMAC/i.test(k));
+  res.status(200).json({ otros, vars, urlEmpiezaCon: env('SUPABASE_URL').slice(0, 30), formatoClave: env('SUPABASE_SERVICE_ROLE_KEY').slice(0, 7), supabase });
 };
