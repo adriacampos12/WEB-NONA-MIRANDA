@@ -1,5 +1,12 @@
 {
-  "rewrites": [{ "source": "/admin", "destination": "/admin.html" }],
+  "rewrites": [
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/privacidad", "destination": "/privacidad.html" },
+    { "source": "/terminos", "destination": "/terminos.html" },
+    { "source": "/preguntas-frecuentes", "destination": "/preguntas-frecuentes.html" },
+    { "source": "/envios-y-pagos", "destination": "/envios-y-pagos.html" },
+    { "source": "/libro-reclamaciones", "destination": "/libro-reclamaciones.html" }
+  ],
   "redirects": [
     {
       "source": "/index.html",
