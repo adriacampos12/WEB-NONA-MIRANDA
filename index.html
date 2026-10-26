@@ -6,6 +6,36 @@
 <link rel="preload" as="style" href="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/ext/classic-reset.css">
 <link rel="preload" as="script" href="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js">
 <link rel="preload" as="script" href="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/ext/classic.js">
+<script>
+// Google Tag Manager (Analytics + Meta) solo se carga si el cliente acepta cookies en el aviso.
+window.dataLayer = window.dataLayer || [];
+function gtag() { dataLayer.push(arguments); }
+gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied', wait_for_update: 500 });
+window.__nmTrack = function () {
+  var c = '';
+  try { c = localStorage.getItem('nm-cookies') || ''; } catch (e) {}
+  var a = c !== 'none' && (c === 'all' || c.indexOf('a') >= 0);
+  var p = c !== 'none' && (c === 'all' || c.indexOf('p') >= 0);
+  gtag('consent', 'update', {
+    analytics_storage: a ? 'granted' : 'denied',
+    ad_storage: p ? 'granted' : 'denied',
+    ad_user_data: p ? 'granted' : 'denied',
+    ad_personalization: p ? 'granted' : 'denied'
+  });
+  if ((a || p) && !window.__nmGtm) {
+    window.__nmGtm = 1;
+    (function (w, d, s, l, i) {
+      w[l] = w[l] || [];
+      w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+      var f = d.getElementsByTagName(s)[0], j = d.createElement(s);
+      j.async = true;
+      j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i;
+      f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-5QP32GSR');
+  }
+};
+window.__nmTrack();
+</script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -1427,6 +1457,10 @@ class Component extends DCLogic {
           qty: s.qty,
         });
         this.setState({ cart, added: true });
+        try {
+          const precio = (prod.price.match(/\d+/) ? parseInt(prod.price.match(/\d+/)[0], 10) : 0);
+          window.dataLayer.push({ event: 'add_to_cart', ecommerce: { currency: 'PEN', value: precio * s.qty, items: [{ item_id: prod.slotId, item_name: prod.name, price: precio, quantity: s.qty }] } });
+        } catch (e) {}
       },
       addedMsg: s.added,
       // compras corporativas
@@ -1628,6 +1662,9 @@ class Component extends DCLogic {
             this.setState({ coError: '' });
             if (window.__nmIzipay) {
               window.__nmIzipay.open(Number(res.total), num, () => {
+                try {
+                  window.dataLayer.push({ event: 'purchase', ecommerce: { transaction_id: num, currency: 'PEN', value: Number(res.total), items: s.cart.map((it) => ({ item_id: it.slotId, item_name: it.name, price: it.priceNum, quantity: it.qty })) } });
+                } catch (e) {}
                 this.setState({ orderDone: true, orderNum: num, orderMsg: msg, coError: '' });
               });
             } else {
@@ -1675,11 +1712,12 @@ class Component extends DCLogic {
       closeCookieCfg: () => this.setState({ cookieCfg: false }),
       toggleAnalytics: () => this.setState(p => ({ cookieAnalytics: !p.cookieAnalytics })),
       toggleAds: () => this.setState(p => ({ cookieAds: !p.cookieAds })),
-      acceptCookies: () => { try { localStorage.setItem('nm-cookies', 'all'); } catch (e) {} this.setState({ cookieChoice: 'all', cookieCfg: false }); },
-      rejectCookies: () => { try { localStorage.setItem('nm-cookies', 'none'); } catch (e) {} this.setState({ cookieChoice: 'none', cookieCfg: false }); },
+      acceptCookies: () => { try { localStorage.setItem('nm-cookies', 'all'); } catch (e) {} window.__nmTrack(); this.setState({ cookieChoice: 'all', cookieCfg: false }); },
+      rejectCookies: () => { try { localStorage.setItem('nm-cookies', 'none'); } catch (e) {} window.__nmTrack(); this.setState({ cookieChoice: 'none', cookieCfg: false }); },
       saveCookies: () => {
         const v = (s.cookieAnalytics ? 'a' : '') + (s.cookieAds ? 'p' : '') || 'none';
         try { localStorage.setItem('nm-cookies', v); } catch (e) {}
+        window.__nmTrack();
         this.setState({ cookieChoice: v, cookieCfg: false });
       },
       // panel del carrito
