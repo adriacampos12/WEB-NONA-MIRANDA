@@ -2,7 +2,7 @@
 // (localStorage 'nm-cookies': 'all', 'none' o combinación de a = analítica, p = publicidad).
 (function () {
   var GA4 = 'G-3XGDF5B8JK';
-  var META_PIXEL = '2278053896381760';
+  var META_PIXEL = '457444570410053';
   var GTM = 'GTM-5QP32GSR';
 
   window.dataLayer = window.dataLayer || [];
