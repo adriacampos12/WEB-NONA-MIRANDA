@@ -1029,6 +1029,8 @@ class Component extends DCLogic {
     window.scrollTo(0, 0);
   }
   componentDidMount() {
+    // stock real desde el servidor: los productos en 0 se muestran como AGOTADO
+    fetch('/api/stock').then((r) => r.json()).then((j) => { if (j && j.stock) this.setState({ stock: j.stock }); }).catch(() => {});
     this._syncTopbar = () => {
       if (this._topbar && this._spacer) this._spacer.style.height = this._topbar.offsetHeight + 'px';
       if (this._hero && this._header) this._hero.style.marginTop = '-' + this._header.offsetHeight + 'px';
@@ -1127,7 +1129,7 @@ class Component extends DCLogic {
       'p-billeteras-4': { name: 'Billetera Jade', price: 'S/ 30' },
       'p-billeteras-5': { name: 'Billetera Saguitta', price: 'S/ 30' },
     };
-    const soldOut = ['p-mochilas-1'];
+    const soldOut = ['p-mochilas-1'].concat(Object.keys(s.stock || {}).filter((k) => s.stock[k] === 0));
     const products = current ? Array.from({ length: current.items }, (_, i) => {
       const slotId = 'p-' + s.view + '-' + (i + 1);
       const previewId = slotId + '-alt1'; // la Foto 1 es la portada del producto
@@ -1632,9 +1634,10 @@ class Component extends DCLogic {
               this.setState({ orderDone: true, orderNum: num, orderMsg: msg, coError: '' });
             }
           })
-          .catch(() => {
+          .catch((err) => {
             this._enviandoPedido = false;
-            this.setState({ coError: 'No pudimos registrar tu pedido. Inténtalo de nuevo o escríbenos por WhatsApp al +51 913 796 342.' });
+            const sinStock = err && /agotado|Solo quedan/.test(err.message || '');
+            this.setState({ coError: sinStock ? err.message + '. Quita el producto o reduce la cantidad para continuar.' : 'No pudimos registrar tu pedido. Inténtalo de nuevo o escríbenos por WhatsApp al +51 913 796 342.' });
           });
       },
       // boletín

@@ -91,7 +91,7 @@ function csv(nombre,filas){
 function porEnviar(p){return p.estado_pago==='pagado'&&['nuevo','preparando'].indexOf(p.estado_envio||'nuevo')>=0}
 function tabs(){
   var n=D?{pedidos:D.pedidos.filter(porEnviar).length,mensajes:D.mensajes.length,reclamos:D.reclamos.length,suscriptores:D.suscriptores.length}:{};
-  var T=[['pedidos','Pedidos'],['mensajes','Mensajes'],['reclamos','Reclamos'],['suscriptores','Boletín'],['accesos','Accesos']];
+  var T=[['pedidos','Pedidos'],['stock','Stock'],['mensajes','Mensajes'],['reclamos','Reclamos'],['suscriptores','Boletín'],['accesos','Accesos']];
   $('tabs').innerHTML=T.map(function(t){return '<button data-t="'+t[0]+'" class="'+(TAB===t[0]?'on':'')+'">'+t[1]+(n[t[0]]?' ('+n[t[0]]+')':'')+'</button>'}).join('');
 }
 function vistaPedidos(){
@@ -131,6 +131,14 @@ function vistaPedidos(){
   }).join('');
 }
 function filas(arr,f){return arr.length?arr.map(f).join(''):'<div class="vacio">Sin registros todavía.</div>'}
+function vistaStock(){
+  return '<p class="t" style="margin-top:0">Escribe cuántas unidades tienes. Se descuentan solas cuando un pedido se paga, y en 0 la tienda muestra AGOTADO. Déjalo vacío para no controlar el stock de ese producto.</p>'+
+  filas(D.stock,function(s){
+    var c=s.cantidad;
+    return '<div class="fila" style="display:flex;gap:12px;align-items:center;justify-content:space-between"><span><b>'+esc(s.nombre)+'</b> <span class="t">'+esc(s.producto_id)+'</span>'+(c===0?' <span class="tag monto_no_coincide">AGOTADO</span>':(c!==null&&c<=3?' <span class="tag pendiente">POCO STOCK</span>':''))+'</span>'+
+    '<span><input class="stk" data-id="'+esc(s.producto_id)+'" type="number" min="0" placeholder="sin control" value="'+(c===null?'':esc(c))+'" style="width:110px;padding:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)"></span></div>';
+  });
+}
 function vistaMensajes(){return '<div class="bar"><button class="btn sec" id="xls">Descargar Excel</button></div>'+filas(D.mensajes,function(m){return '<div class="fila"><b>'+esc(m.nombre)+'</b> · <a href="mailto:'+esc(m.correo)+'">'+esc(m.correo)+'</a> <span class="t">'+esc(fecha(m.creado_en))+'</span><p style="white-space:pre-wrap">'+esc(m.mensaje)+'</p></div>'})}
 function vistaReclamos(){return '<div class="bar"><button class="btn sec" id="xls">Descargar Excel</button></div>'+filas(D.reclamos,function(r){return '<div class="fila"><b>Hoja N.º '+esc(r.hoja)+' — '+esc(r.tipo)+'</b> <span class="t">'+esc(fecha(r.creado_en))+'</span><p>'+esc(r.nombre)+' · DNI '+esc(r.dni)+' · '+esc(r.telefono)+' · '+esc(r.correo)+'</p><p><b>Hechos:</b> '+esc(r.hechos)+'</p><p><b>Pide:</b> '+esc(r.pedido_consumidor)+'</p></div>'})}
 function vistaSus(){return '<div class="bar"><button class="btn sec" id="xls">Descargar Excel</button><span class="t">'+D.suscriptores.length+' suscriptores</span></div>'+filas(D.suscriptores,function(s){return '<div class="fila">'+esc(s.correo)+' <span class="t">'+esc(fecha(s.creado_en))+'</span></div>'})}
@@ -141,7 +149,7 @@ function vistaAccesos(){
 function pintar(){
   tabs();
   if(!D){$('main').innerHTML='<div class="vacio">Cargando…</div>';return}
-  var v={pedidos:vistaPedidos,mensajes:vistaMensajes,reclamos:vistaReclamos,suscriptores:vistaSus,accesos:vistaAccesos}[TAB];
+  var v={pedidos:vistaPedidos,stock:vistaStock,mensajes:vistaMensajes,reclamos:vistaReclamos,suscriptores:vistaSus,accesos:vistaAccesos}[TAB];
   $('main').innerHTML=v();
 }
 function cargar(){
@@ -172,7 +180,16 @@ $('main').addEventListener('change',function(e){
   if(e.target.classList.contains('est')){
     var n=e.target.getAttribute('data-n'),v=e.target.value;
     api('estado',{numero:n,estado:v}).then(function(j){
-      if(j.ok){D.pedidos.forEach(function(p){if(p.numero===n)p.estado_envio=v});tabs()}else{alert('No se pudo guardar el estado');cargar()}
+      if(j.ok){D.pedidos.forEach(function(p){if(p.numero===n)p.estado_envio=v});tabs();
+        if(j.correo===true)$('act').textContent='Aviso de envío enviado al cliente';
+        if(j.correo===false)alert('Estado guardado, pero NO se pudo enviar el correo al cliente. Avísale por WhatsApp.');
+      }else{alert('No se pudo guardar el estado');cargar()}
+    });
+  }
+  if(e.target.classList.contains('stk')){
+    var id=e.target.getAttribute('data-id'),val=e.target.value.trim();
+    api('stock',{id:id,cantidad:val===''?null:Number(val)}).then(function(j){
+      if(j.ok){D.stock.forEach(function(s){if(s.producto_id===id)s.cantidad=val===''?null:Number(val)});$('act').textContent='Stock guardado';pintar()}else{alert('No se pudo guardar el stock');cargar()}
     });
   }
 });

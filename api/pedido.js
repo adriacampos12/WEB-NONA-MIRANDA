@@ -28,7 +28,15 @@ module.exports = async (req, res) => {
       subtotal += precio * cantidad;
       lineas.push({ id: it.id, nombre: txt(it.nombre, 80), cantidad, precio });
     }
-    const pct = CUPONES[txt(d.cupon, 30).toUpperCase()] || 0;
+    const stock = await sb('stock?select=producto_id,nombre,cantidad&cantidad=not.is.null');
+    for (const l of lineas) {
+      const s = stock.find((x) => x.producto_id === l.id);
+      if (s && s.cantidad < l.cantidad) {
+        const msg = s.cantidad > 0 ? 'Solo quedan ' + s.cantidad + ' unidades de ' + s.nombre : s.nombre + ' está agotado';
+        return res.status(409).json({ ok: false, error: msg });
+      }
+    }
+    const pct =CUPONES[txt(d.cupon, 30).toUpperCase()] || 0;
     const descuento = Math.round(subtotal * pct) / 100;
     const envio = subtotal >= 200 ? 0 : 12;
     const total = subtotal - descuento + envio;

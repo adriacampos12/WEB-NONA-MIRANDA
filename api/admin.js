@@ -45,21 +45,45 @@ module.exports = async (req, res) => {
     if (!tokenValido(d.token)) return res.status(401).json({ ok: false, error: 'Sesion vencida' });
 
     if (d.accion === 'datos') {
-      const [pedidos, mensajes, reclamos, suscriptores] = await Promise.all([
+      const [pedidos, mensajes, reclamos, suscriptores, stock] = await Promise.all([
         sb('pedidos?select=*&order=numero.desc&limit=1000'),
         sb('mensajes_contacto?select=*&order=creado_en.desc&limit=500'),
         sb('reclamos?select=*&order=creado_en.desc&limit=500'),
         sb('suscriptores?select=*&order=creado_en.desc&limit=5000'),
+        sb('stock?select=*&order=producto_id.asc'),
       ]);
-      return res.status(200).json({ ok: true, pedidos, mensajes, reclamos, suscriptores });
+      return res.status(200).json({ ok: true, pedidos, mensajes, reclamos, suscriptores, stock });
+    }
+
+    if (d.accion === 'stock') {
+      const id = txt(d.id, 40);
+      const vacio = d.cantidad === null || d.cantidad === '';
+      const cant = Math.floor(Number(d.cantidad));
+      if (!id || (!vacio && !(cant >= 0 && cant <= 100000))) return res.status(400).json({ ok: false, error: 'Dato invalido' });
+      await sb('stock?producto_id=eq.' + encodeURIComponent(id), { method: 'PATCH', body: { cantidad: vacio ? null : cant } });
+      return res.status(200).json({ ok: true });
     }
 
     if (d.accion === 'estado') {
       const estado = txt(d.estado, 20);
       const numero = txt(d.numero, 30);
       if (!ESTADOS.includes(estado) || !numero) return res.status(400).json({ ok: false, error: 'Dato invalido' });
-      await sb('pedidos?numero=eq.' + encodeURIComponent(numero), { method: 'PATCH', body: { estado_envio: estado } });
-      return res.status(200).json({ ok: true });
+      const filtro = 'pedidos?numero=eq.' + encodeURIComponent(numero);
+      const antes = await sb(filtro + '&select=*');
+      if (!antes.length) return res.status(404).json({ ok: false, error: 'Pedido no encontrado' });
+      await sb(filtro, { method: 'PATCH', body: { estado_envio: estado } });
+      let correo = null;
+      // aviso al cliente solo al pasar a "enviado" por primera vez y si el pedido esta pagado
+      if (estado === 'enviado' && antes[0].estado_envio !== 'enviado' && antes[0].estado_pago === 'pagado') {
+        try {
+          await require('./_correo').avisarEnvio(antes[0]);
+          correo = true;
+        } catch (e) {
+          console.error('correo envio', e.message);
+          correo = false;
+        }
+      }
+      return res.status(200).json({ ok: true, correo });
     }
 
     return res.status(400).json({ ok: false, error: 'Accion desconocida' });

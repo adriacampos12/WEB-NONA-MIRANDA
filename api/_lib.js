@@ -92,6 +92,16 @@ async function marcarPagado(numero, centavos, origen, payload) {
         monto_pagado: centavos === null || centavos === undefined ? null : Number(centavos) / 100,
       },
     });
+    if (actualizados && actualizados.length && coincide) {
+      // descuenta una sola vez: solo la confirmación que cambió el estado llega hasta aquí
+      for (const it of Array.isArray(actualizados[0].productos_json) ? actualizados[0].productos_json : []) {
+        try {
+          await sb('rpc/descontar_stock', { method: 'POST', body: { p_id: it.id, p_cant: Number(it.cantidad) } });
+        } catch (e) {
+          console.error('stock', e.message);
+        }
+      }
+    }
     if (actualizados && actualizados.length && (coincide || pedido.estado_pago !== 'monto_no_coincide')) {
       try {
         await require('./_correo').avisarPago(actualizados[0], coincide);

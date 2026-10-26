@@ -138,7 +138,38 @@ async function avisarPago(pedido, coincide) {
   });
 }
 
-module.exports = { avisarPago, htmlCliente };
+async function avisarEnvio(p) {
+  if (!p.correo) return;
+  const { user, t } = transporte();
+  const nombre = esc(String(p.nombre || '').split(' ')[0]);
+  const recojo = p.entrega === 'Motorizado' ? '' : '<p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#3a3a3a">Para recoger, presenta tu DNI y la clave de recojo que elegiste.</p>';
+  const html =
+    '<!doctype html><html><body style="margin:0;background:#f4f2ee;font-family:Arial,Helvetica,sans-serif">' +
+    '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f2ee;padding:24px 0"><tr><td align="center">' +
+    '<table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff">' +
+    '<tr><td align="center" style="padding:28px 24px;border-bottom:1px solid #0a0a0a"><img src="' + LOGO + '" alt="Nona Miranda" height="48" style="display:block;height:48px"></td></tr>' +
+    '<tr><td style="padding:32px">' +
+    '<p style="margin:0 0 6px;font-size:12px;letter-spacing:2px;color:#777">PEDIDO ENVIADO</p>' +
+    '<h1 style="margin:0 0 16px;font-size:24px;color:#0a0a0a">¡Tu pedido va en camino, ' + nombre + '!</h1>' +
+    '<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#3a3a3a">Tu pedido <strong>' + esc(p.numero) + '</strong> ya fue enviado.</p>' +
+    '<p style="margin:0;font-size:14px;line-height:1.6;color:#0a0a0a"><strong>Entrega:</strong> ' + esc(entregaTexto(p)) + '</p>' +
+    '<p style="margin:6px 0 0;font-size:14px;color:#0a0a0a"><strong>Fecha:</strong> ' + esc(p.fecha_entrega) + '</p>' + recojo +
+    '<table cellpadding="0" cellspacing="0" style="margin-top:24px"><tr><td style="background:#25d366;padding:12px 20px">' +
+    '<a href="https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('Hola Nona Miranda, consulto por mi pedido ' + p.numero) + '" style="color:#ffffff;font-size:14px;font-weight:bold;text-decoration:none">Escríbenos por WhatsApp</a>' +
+    '</td></tr></table></td></tr>' +
+    '<tr><td align="center" style="background:#0a0a0a;padding:16px;font-size:11px;letter-spacing:1px;color:#999">NONA MIRANDA · nonamiranda.pe · +51 913 796 342</td></tr>' +
+    '</table></td></tr></table></body></html>';
+  await t.sendMail({
+    from: 'Nona Miranda <' + user + '>',
+    to: p.correo,
+    replyTo: TIENDA,
+    subject: 'Tu pedido ' + p.numero + ' fue enviado — Nona Miranda',
+    html,
+    text: 'Tu pedido ' + p.numero + ' ya fue enviado.\n\nEntrega: ' + entregaTexto(p) + '\nFecha: ' + p.fecha_entrega + '\n\nConsultas por WhatsApp: +51 913 796 342',
+  });
+}
+
+module.exports = { avisarPago, avisarEnvio, htmlCliente };
 
 // Correo generico (contacto y reclamos). No lanza error: devuelve true/false para no bloquear el registro.
 async function enviarCorreo({ to, subject, text, replyTo, desde }) {
