@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Panel Nona Miranda</title>
+<link rel="icon" href="/favicon.png">
+<link rel="manifest" href="/admin-manifest.json">
+<style>
+:root{--bg:#f4f2ee;--card:#fff;--ink:#0a0a0a;--mut:#6b6b6b;--line:#e3e0d9;--ok:#1f8a5b;--warn:#b7791f;--bad:#c0392b}
+@media (prefers-color-scheme:dark){:root{--bg:#141414;--card:#1e1e1e;--ink:#f2f2f2;--mut:#9a9a9a;--line:#333}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Arial,Helvetica,sans-serif}
+header{background:#0a0a0a;color:#fff;padding:12px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:30px}
+header b{letter-spacing:2px;font-size:13px}
+#recargar{margin-left:auto}
+nav{display:flex;gap:4px;padding:12px 20px 0;flex-wrap:wrap}
+nav button{background:transparent;border:0;border-bottom:3px solid transparent;padding:8px 12px;font-size:14px;color:var(--mut);cursor:pointer}
+nav button.on{color:var(--ink);border-color:var(--ink);font-weight:bold}
+main{padding:16px 20px 40px;max-width:1200px;margin:0 auto}
+button,select,input{font:inherit}
+.btn{background:var(--ink);color:var(--bg);border:0;padding:8px 14px;cursor:pointer}
+.btn.sec{background:transparent;color:inherit;border:1px solid var(--line)}
+header .btn{background:#fff;color:#000}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);padding:14px}
+.card small{color:var(--mut);display:block;letter-spacing:1px;font-size:11px}
+.card strong{font-size:22px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.bar input,.bar select{padding:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.bar input{min-width:220px}
+.pedido,.fila{background:var(--card);border:1px solid var(--line);margin-bottom:8px}
+.cab{display:grid;grid-template-columns:130px 1fr 90px 130px 150px;gap:10px;padding:10px 12px;align-items:center;cursor:pointer}
+.cab .n{font-weight:bold}
+.det{display:none;padding:12px;border-top:1px solid var(--line)}
+.pedido.open .det{display:block}
+.det p,.fila p{margin:4px 0}
+.tag{display:inline-block;padding:2px 8px;font-size:11px;font-weight:bold;letter-spacing:1px;color:#fff;background:var(--mut)}
+.tag.pagado{background:var(--ok)}.tag.pendiente{background:var(--warn)}.tag.monto_no_coincide{background:var(--bad)}
+.fila{padding:12px}
+.t{color:var(--mut);font-size:12px}
+.vacio{color:var(--mut);padding:30px;text-align:center}
+.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.links a{display:block;background:var(--card);border:1px solid var(--line);padding:16px;text-decoration:none;color:var(--ink)}
+.links a small{display:block;color:var(--mut)}
+#login{max-width:340px;margin:12vh auto;background:var(--card);border:1px solid var(--line);padding:24px;text-align:center}
+#login input{width:100%;padding:10px;margin:12px 0;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+#err{color:var(--bad);min-height:20px}
+@media(max-width:760px){.cab{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div id="login">
+  <img src="/logo-1783103585770.png" alt="Nona Miranda" height="44">
+  <p>Panel privado</p>
+  <form id="f"><input id="clave" type="password" placeholder="Clave del panel" autocomplete="current-password" autofocus>
+  <button class="btn" style="width:100%">Entrar</button></form>
+  <div id="err"></div>
+</div>
+<div id="app" hidden>
+  <header><img src="/logo-1783103585770.png" alt=""><b>PANEL</b><span id="act" style="color:#aaa;font-size:12px"></span>
+    <button class="btn" id="recargar">Actualizar</button><button class="btn" id="salir">Salir</button></header>
+  <nav id="tabs"></nav>
+  <main id="main"></main>
+</div>
+<script>
+(function(){
+var TOKEN='',D=null,TAB='pedidos',FILTRO='porenviar',Q='';
+var ESTADOS=['nuevo','preparando','enviado','entregado','cancelado'];
+function $(i){return document.getElementById(i)}
+function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function api(accion,extra){
+  var b=Object.assign({accion:accion,token:TOKEN},extra||{});
+  return fetch('/api/admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(function(r){return r.json().then(function(j){if(r.status===401&&accion!=='login'){salir()}return j})});
+}
+function ls(k,v){try{if(v===undefined)return sessionStorage.getItem(k);if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v)}catch(e){}return null}
+function salir(){TOKEN='';D=null;ls('nmt',null);$('app').hidden=true;$('login').hidden=false}
+function soles(n){return 'S/ '+Number(n||0).toFixed(2)}
+function fecha(s){if(!s)return '';return new Date(s).toLocaleString('es-PE',{timeZone:'America/Lima',day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}
+function diaLima(s){return s?new Date(s).toLocaleDateString('en-CA',{timeZone:'America/Lima'}):''}
+function hoyLima(){return diaLima(new Date().toISOString())}
+function csv(nombre,filas){
+  if(!filas.length)return;
+  var cols=Object.keys(filas[0]);
+  var lineas=filas.map(function(f){return cols.map(function(c){var v=f[c];if(v&&typeof v==='object')v=JSON.stringify(v);return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'}).join(',')});
+  var t=[cols.join(',')].concat(lineas).join('\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+t],{type:'text/csv;charset=utf-8'}));a.download=nombre+'.csv';a.click();
+}
+function porEnviar(p){return p.estado_pago==='pagado'&&['nuevo','preparando'].indexOf(p.estado_envio||'nuevo')>=0}
+function tabs(){
+  var n=D?{pedidos:D.pedidos.filter(porEnviar).length,mensajes:D.mensajes.length,reclamos:D.reclamos.length,suscriptores:D.suscriptores.length}:{};
+  var T=[['pedidos','Pedidos'],['mensajes','Mensajes'],['reclamos','Reclamos'],['suscriptores','Boletín'],['accesos','Accesos']];
+  $('tabs').innerHTML=T.map(function(t){return '<button data-t="'+t[0]+'" class="'+(TAB===t[0]?'on':'')+'">'+t[1]+(n[t[0]]?' ('+n[t[0]]+')':'')+'</button>'}).join('');
+}
+function vistaPedidos(){
+  var P=D.pedidos,hoy=hoyLima();
+  var pag=P.filter(function(p){return p.estado_pago==='pagado'});
+  var mes=hoy.slice(0,7);
+  var vHoy=pag.filter(function(p){return diaLima(p.pagado_en)===hoy}).reduce(function(s,p){return s+Number(p.total)},0);
+  var vMes=pag.filter(function(p){return diaLima(p.pagado_en).slice(0,7)===mes}).reduce(function(s,p){return s+Number(p.total)},0);
+  var lista=P.filter(function(p){
+    if(FILTRO==='porenviar'&&!porEnviar(p))return false;
+    if(FILTRO==='pagados'&&p.estado_pago!=='pagado')return false;
+    if(FILTRO==='pendientes'&&p.estado_pago==='pagado')return false;
+    if(Q){var h=(p.numero+' '+p.nombre+' '+p.telefono+' '+p.correo+' '+p.dni).toLowerCase();if(h.indexOf(Q)<0)return false}
+    return true;
+  });
+  var h='<div class="cards"><div class="card"><small>POR ENVIAR</small><strong>'+P.filter(porEnviar).length+'</strong></div>'+
+   '<div class="card"><small>VENTAS HOY</small><strong>'+soles(vHoy)+'</strong></div>'+
+   '<div class="card"><small>VENTAS DEL MES</small><strong>'+soles(vMes)+'</strong></div>'+
+   '<div class="card"><small>PEDIDOS PAGADOS</small><strong>'+pag.length+'</strong></div></div>';
+  h+='<div class="bar"><select id="fil">'+[['porenviar','Por enviar'],['pagados','Todos los pagados'],['pendientes','Sin pagar / revisar'],['todos','Todos']].map(function(o){return '<option value="'+o[0]+'"'+(FILTRO===o[0]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select>'+
+   '<input id="q" placeholder="Buscar nombre, código, teléfono…" value="'+esc(Q)+'"><button class="btn sec" id="xls">Descargar Excel</button></div>';
+  if(!lista.length)return h+'<div class="vacio">No hay pedidos en esta vista.</div>';
+  return h+lista.map(function(p){
+    var est=p.estado_envio||'nuevo';
+    var lugar=[p.distrito,p.provincia,p.departamento].filter(Boolean).join(', ');
+    var tel=String(p.telefono||'').replace(/\D/g,'');if(tel.length===9)tel='51'+tel;
+    return '<div class="pedido"><div class="cab"><span class="n">'+esc(p.numero)+'</span><span>'+esc(p.nombre)+'<br><small class="t">'+esc(fecha(p.pagado_en||p.creado_en))+'</small></span>'+
+     '<span>'+soles(p.total)+'</span><span><span class="tag '+esc(p.estado_pago)+'">'+esc(String(p.estado_pago).toUpperCase())+'</span></span>'+
+     '<span><select class="est" data-n="'+esc(p.numero)+'">'+ESTADOS.map(function(e){return '<option'+(e===est?' selected':'')+'>'+e+'</option>'}).join('')+'</select></span></div>'+
+     '<div class="det"><p><b>Productos:</b> '+esc(p.productos)+'</p><p><b>Subtotal:</b> '+soles(p.subtotal)+' · <b>Envío:</b> '+esc(p.envio)+'</p>'+
+     '<p><b>Cliente:</b> '+esc(p.nombre)+' · DNI '+esc(p.dni)+' · '+esc(p.telefono)+' · '+esc(p.correo)+'</p>'+
+     '<p><b>Entrega:</b> '+esc(p.entrega)+(p.courier?' ('+esc(p.courier)+')':'')+' — '+esc(p.direccion)+(lugar?', '+esc(lugar):'')+'</p>'+
+     '<p><b>Fecha de entrega:</b> '+esc(p.fecha_entrega)+'</p>'+
+     '<p><b>Comprobante:</b> '+esc(p.comprobante)+(p.ruc?' — RUC '+esc(p.ruc)+' '+esc(p.razon_social):'')+'</p>'+
+     (p.monto_pagado!=null?'<p><b>Cobrado por Izipay:</b> '+soles(p.monto_pagado)+'</p>':'')+
+     '<p><a class="btn sec" style="text-decoration:none;display:inline-block" target="_blank" rel="noopener" href="https://wa.me/'+tel+'?text='+encodeURIComponent('Hola '+String(p.nombre).split(' ')[0]+', te escribimos de Nona Miranda por tu pedido '+p.numero)+'">WhatsApp al cliente</a></p></div></div>';
+  }).join('');
+}
+function filas(arr,f){return arr.length?arr.map(f).join(''):'<div class="vacio">Sin registros todavía.</div>'}
+function vistaMensajes(){return '<div class="bar"><button class="btn sec" id="xls">Descargar Excel</button></div>'+filas(D.mensajes,function(m){return '<div class="fila"><b>'+esc(m.nombre)+'</b> · <a href="mailto:'+esc(m.correo)+'">'+esc(m.correo)+'</a> <span class="t">'+esc(fecha(m.creado_en))+'</span><p style="white-space:pre-wrap">'+esc(m.mensaje)+'</p></div>'})}
+function vistaReclamos(){return '<div class="bar"><button class="btn sec" id="xls">Descargar Excel</button></div>'+filas(D.reclamos,function(r){return '<div class="fila"><b>Hoja N.º '+esc(r.hoja)+' — '+esc(r.tipo)+'</b> <span class="t">'+esc(fecha(r.creado_en))+'</span><p>'+esc(r.nombre)+' · DNI '+esc(r.dni)+' · '+esc(r.telefono)+' · '+esc(r.correo)+'</p><p><b>Hechos:</b> '+esc(r.hechos)+'</p><p><b>Pide:</b> '+esc(r.pedido_consumidor)+'</p></div>'})}
+function vistaSus(){return '<div class="bar"><button class="btn sec" id="xls">Descargar Excel</button><span class="t">'+D.suscriptores.length+' suscriptores</span></div>'+filas(D.suscriptores,function(s){return '<div class="fila">'+esc(s.correo)+' <span class="t">'+esc(fecha(s.creado_en))+'</span></div>'})}
+function vistaAccesos(){
+  var L=[['Base de datos','Supabase','https://supabase.com/dashboard/project/lsbfsgbpypfutlprcrjw'],['Hosting y claves','Vercel','https://vercel.com/alg-trading/web-nona-miranda'],['Cobros y reembolsos','Izipay Back Office','https://secure.micuentaweb.pe/'],['Envío de correos','Resend','https://resend.com/emails'],['Correo de la tienda','Gmail','https://mail.google.com/'],['Google','Search Console','https://search.google.com/search-console'],['Ver la tienda','nonamiranda.pe','https://www.nonamiranda.pe/']];
+  return '<div class="links">'+L.map(function(l){return '<a href="'+l[2]+'" target="_blank" rel="noopener"><b>'+l[1]+'</b><small>'+l[0]+'</small></a>'}).join('')+'</div>';
+}
+function pintar(){
+  tabs();
+  if(!D){$('main').innerHTML='<div class="vacio">Cargando…</div>';return}
+  var v={pedidos:vistaPedidos,mensajes:vistaMensajes,reclamos:vistaReclamos,suscriptores:vistaSus,accesos:vistaAccesos}[TAB];
+  $('main').innerHTML=v();
+}
+function cargar(){
+  return api('datos').then(function(j){
+    if(!j.ok)return;
+    D=j;$('act').textContent='Actualizado '+new Date().toLocaleTimeString('es-PE',{timeZone:'America/Lima',hour:'2-digit',minute:'2-digit'});pintar();
+  });
+}
+function entrar(t){TOKEN=t;ls('nmt',t);$('login').hidden=true;$('app').hidden=false;pintar();cargar()}
+$('f').addEventListener('submit',function(e){
+  e.preventDefault();$('err').textContent='';
+  api('login',{clave:$('clave').value}).then(function(j){
+    if(j.ok){$('clave').value='';entrar(j.token)}else $('err').textContent=j.error||'No se pudo entrar';
+  }).catch(function(){$('err').textContent='Sin conexión'});
+});
+$('salir').onclick=salir;
+$('recargar').onclick=cargar;
+$('tabs').addEventListener('click',function(e){var t=e.target.getAttribute('data-t');if(t){TAB=t;pintar()}});
+$('main').addEventListener('click',function(e){
+  if(e.target.id==='xls'){
+    var m=D&&D[TAB];csv('nona-miranda-'+TAB+'-'+hoyLima(),m||[]);return;
+  }
+  var cab=e.target.closest('.cab');
+  if(cab&&!e.target.closest('select'))cab.parentNode.classList.toggle('open');
+});
+$('main').addEventListener('change',function(e){
+  if(e.target.id==='fil'){FILTRO=e.target.value;pintar()}
+  if(e.target.classList.contains('est')){
+    var n=e.target.getAttribute('data-n'),v=e.target.value;
+    api('estado',{numero:n,estado:v}).then(function(j){
+      if(j.ok){D.pedidos.forEach(function(p){if(p.numero===n)p.estado_envio=v});tabs()}else{alert('No se pudo guardar el estado');cargar()}
+    });
+  }
+});
+$('main').addEventListener('input',function(e){
+  if(e.target.id==='q'){Q=e.target.value.toLowerCase().trim();var pos=e.target.selectionStart;pintar();var q=$('q');q.focus();q.setSelectionRange(pos,pos)}
+});
+var t0=ls('nmt');if(t0)entrar(t0);
+})();
+</script>
+</body>
+</html>

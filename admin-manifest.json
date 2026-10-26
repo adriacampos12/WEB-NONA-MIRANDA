@@ -1,0 +1,9 @@
+{
+  "name": "Nona Miranda Panel",
+  "short_name": "NM Panel",
+  "start_url": "/admin",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0a0a0a",
+  "icons": [{ "src": "/favicon.png", "sizes": "any", "type": "image/png" }]
+}
