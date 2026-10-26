@@ -1836,17 +1836,35 @@ class Component extends DCLogic {
               .then(function (r2) { return r2.json(); })
               .then(function (conf) {
                 window.__nmLastConf = conf;
+                if (conf.ok && conf.pagado) { return true; }
+                return consultarEstado();
+              })
+              .catch(function () { return consultarEstado(); })
+              .then(function (pagado) {
                 loading.style.display = 'none';
-                if (conf.ok && conf.pagado) {
+                if (pagado) {
                   overlay.style.display = 'none';
                   onSuccess();
                 } else {
-                  showError('El pago no se completó. Intenta de nuevo o usa otra tarjeta.');
+                  showError('No pudimos confirmar tu pago todavía. NO vuelvas a pagar: si el cargo se realizó, recibirás la confirmación en tu correo con el número ' + numeroPedido + '. Escríbenos por WhatsApp al +51 913 796 342 si necesitas ayuda.');
                 }
-              })
-              .catch(function () {
-                showError('No pudimos verificar el pago. Si el cargo se realizó, contáctanos por WhatsApp.');
               });
+            // el aviso automático de Izipay es la fuente de verdad: se consulta al servidor hasta ~20 s
+            function consultarEstado() {
+              var intentos = 0;
+              function uno() {
+                return fetch('/api/estado', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ numero: numeroPedido }) })
+                  .then(function (r) { return r.json(); })
+                  .catch(function () { return { pagado: false }; })
+                  .then(function (e) {
+                    if (e && e.pagado) { return true; }
+                    intentos += 1;
+                    if (intentos >= 10) { return false; }
+                    return new Promise(function (ok) { setTimeout(ok, 2000); }).then(uno);
+                  });
+              }
+              return uno();
+            }
             return false;
           });
         });
