@@ -1004,7 +1004,48 @@ class Component extends DCLogic {
     this.setState({ view: key, productIndex: null, added: false, checkout: false, corp: false });
     window.scrollTo(0, 0);
   }
+  // La página se guarda en la dirección (#bolsos/2, #corporativas) para que recargar o volver atrás no la pierda
+  hashFromState() {
+    const s = this.state;
+    if (s.checkout) return '#p/pago';
+    if (s.corp) return '#p/corporativas';
+    if (s.view) return '#p/' + s.view + (s.productIndex != null ? '/' + (s.productIndex + 1) : '');
+    return '';
+  }
+  stateFromHash(h) {
+    const home = { view: null, productIndex: null, corp: false, checkout: false, added: false };
+    const parts = String(h || '').replace(/^#p\//, '').split('/');
+    if (parts[0] === 'corporativas') return { ...home, corp: true };
+    if (['bolsos', 'billeteras', 'mochilas', 'accesorios'].indexOf(parts[0]) < 0) return home;
+    const n = parseInt(parts[1], 10);
+    return { ...home, view: parts[0], productIndex: n >= 1 ? n - 1 : null, mainPhoto: 1, qty: 1 };
+  }
+  restoreFromHash() {
+    const h = window.location.hash;
+    // los enlaces de ancla (#nosotros, #contacto...) no cambian de página
+    if (h !== '' && h.indexOf('#p/') !== 0) return;
+    if (h === this.hashFromState()) return;
+    this._pendingHash = h;
+    clearTimeout(this._pendingTimer);
+    this._pendingTimer = setTimeout(() => { this._pendingHash = null; }, 800);
+    this.setState(this.stateFromHash(h));
+    window.scrollTo(0, 0);
+  }
+  componentDidUpdate() {
+    const h = this.hashFromState();
+    if (this._pendingHash != null) {
+      if (h === this._pendingHash) { this._pendingHash = null; this._lastSig = h; }
+      return;
+    }
+    if (h === this._lastSig) return;
+    this._lastSig = h;
+    try { window.history.pushState(null, '', h || window.location.pathname + window.location.search); } catch (e) {}
+  }
   componentDidMount() {
+    this._lastSig = '';
+    this._onPop = () => this.restoreFromHash();
+    window.addEventListener('popstate', this._onPop);
+    this.restoreFromHash();
     // stock real desde el servidor: los productos en 0 se muestran como AGOTADO
     fetch('/api/stock').then((r) => r.json()).then((j) => { if (j && j.stock) this.setState({ stock: j.stock }); }).catch(() => {});
     this._syncTopbar = () => {
@@ -1043,6 +1084,8 @@ class Component extends DCLogic {
     if (this._onScroll) window.removeEventListener('scroll', this._onScroll);
     if (this._onResizeMobile) window.removeEventListener('resize', this._onResizeMobile);
     if (this._bestTimer) clearInterval(this._bestTimer);
+    if (this._onPop) window.removeEventListener('popstate', this._onPop);
+    clearTimeout(this._pendingTimer);
   }
   renderVals() {
     const s = this.state;
